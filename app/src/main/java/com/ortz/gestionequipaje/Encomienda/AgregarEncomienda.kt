@@ -129,8 +129,10 @@ class AgregarEncomienda : AppCompatActivity() {
         val tipoSeleccionado = DataStore.tiposEquipaje[posicionTipoEquipaje]
         val peso = edPeso.text.toString().toDoubleOrNull() ?: 0.0
 
-        tarifaActual = tipoSeleccionado.tarifaBase + (peso * 500)
-        tvTarifaCalculada.text = "Tarifa: $${tarifaActual.toInt()}"
+        val subtotal = tipoSeleccionado.tarifaBase + (peso * 500)
+        val iva = subtotal * 0.19
+        tarifaActual = subtotal + iva
+        tvTarifaCalculada.text = "Tarifa: $${tarifaActual.toInt()} (IVA incluido)"
     }
 
     private fun guardarEncomienda() {
