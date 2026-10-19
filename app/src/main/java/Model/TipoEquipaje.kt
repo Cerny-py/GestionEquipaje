@@ -1,9 +1,11 @@
 package Model
-import java.util.UUID
 
 data class TipoEquipaje(
-    val id: String = UUID.randomUUID().toString(),
-    val nombre: String,
-    val pesoMaximo: Double,
-    val tarifaBase: Double
+    val id: String = "",
+    val nombre: String = "",
+    val pesoMaximo: Double = 0.0,
+    val tarifaBase: Double = 0.0,
+    val descripcion: String = "",
+    val requiereEmbalajeEspecial: Boolean = false,
+    val usuarioId: String = ""
 )

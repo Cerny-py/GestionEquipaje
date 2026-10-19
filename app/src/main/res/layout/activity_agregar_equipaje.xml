@@ -18,135 +18,180 @@
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="483dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_alignParentBottom="true"
             android:layout_marginStart="1dp"
-            android:layout_marginTop="105dp"
-            android:layout_marginBottom="143dp"
+            android:layout_marginTop="90dp"
+            android:layout_marginBottom="40dp"
             android:backgroundTint="@color/white"
             app:cardCornerRadius="28dp">
 
-            <LinearLayout
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="28dp">
-
-                <TextView
-                    android:id="@+id/txtTituloLogIn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nuevo tipo de equipaje"
-                    android:textColor="@color/color_primario"
-                    android:textSize="30sp"
-                    android:textStyle="bold" />
-
-                <View
-                    android:id="@+id/view1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="60dp" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Nombre del tipo de equipaje"
-                    app:boxBackgroundMode="outline"
-                    app:boxCornerRadiusBottomEnd="8dp"
-                    app:boxCornerRadiusBottomStart="8dp"
-                    app:boxCornerRadiusTopEnd="8dp"
-                    app:boxCornerRadiusTopStart="8dp"
-                    app:boxStrokeColor="@color/color_primario"
-                    app:hintTextColor="@color/color_primario">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edNombreEquipaje"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <View
-                    android:id="@+id/view2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Peso máximo (kg)"
-                    app:boxBackgroundMode="outline"
-                    app:boxCornerRadiusBottomEnd="8dp"
-                    app:boxCornerRadiusBottomStart="8dp"
-                    app:boxCornerRadiusTopEnd="8dp"
-                    app:boxCornerRadiusTopStart="8dp"
-                    app:boxStrokeColor="@color/color_primario"
-                    app:hintTextColor="@color/color_primario">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edPesoEquipaje"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <View
-                    android:id="@+id/view3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Tarifa base ($)"
-                    app:boxBackgroundMode="outline"
-                    app:boxCornerRadiusBottomEnd="8dp"
-                    app:boxCornerRadiusBottomStart="8dp"
-                    app:boxCornerRadiusTopEnd="8dp"
-                    app:boxCornerRadiusTopStart="8dp"
-                    app:boxStrokeColor="@color/color_primario"
-                    app:hintTextColor="@color/color_primario">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edTarifaEquipaje"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <View
-                    android:id="@+id/view4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="35dp" />
+                android:maxHeight="600dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:padding="10dp">
+                    android:orientation="vertical"
+                    android:padding="28dp">
 
-                    <Button
-                        android:id="@+id/btnVolverMenuEquipaje"
-                        android:layout_width="140dp"
-                        android:layout_height="50dp"
-                        android:layout_margin="12dp"
-                        android:backgroundTint="@color/color_primario"
-                        android:text="Volver" />
+                    <TextView
+                        android:id="@+id/txtTituloLogIn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nuevo tipo de equipaje"
+                        android:textColor="@color/color_primario"
+                        android:textSize="30sp"
+                        android:textStyle="bold" />
 
-                    <Button
-                        android:id="@+id/btnGuardarEquipaje"
-                        android:layout_width="140dp"
-                        android:layout_height="50dp"
-                        android:layout_margin="12dp"
-                        android:backgroundTint="#FF6D00"
-                        android:text="Guardar" />
+                    <View
+                        android:id="@+id/view1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Nombre del tipo de equipaje"
+                        app:boxBackgroundMode="outline"
+                        app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusTopStart="8dp"
+                        app:boxStrokeColor="@color/color_primario"
+                        app:hintTextColor="@color/color_primario">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edNombreEquipaje"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <View
+                        android:id="@+id/view2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="16dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Peso máximo (kg)"
+                        app:boxBackgroundMode="outline"
+                        app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusTopStart="8dp"
+                        app:boxStrokeColor="@color/color_primario"
+                        app:hintTextColor="@color/color_primario">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edPesoEquipaje"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <View
+                        android:id="@+id/view3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="16dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Tarifa base ($)"
+                        app:boxBackgroundMode="outline"
+                        app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusTopStart="8dp"
+                        app:boxStrokeColor="@color/color_primario"
+                        app:hintTextColor="@color/color_primario">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edTarifaEquipaje"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <View
+                        android:id="@+id/view5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="16dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Descripción"
+                        app:boxBackgroundMode="outline"
+                        app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusTopStart="8dp"
+                        app:boxStrokeColor="@color/color_primario"
+                        app:hintTextColor="@color/color_primario">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edDescripcionEquipaje"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="top"
+                            android:inputType="textMultiLine"
+                            android:minLines="2"
+                            android:maxLines="4" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <View
+                        android:id="@+id/view6"
+                        android:layout_width="wrap_content"
+                        android:layout_height="12dp" />
+
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/cbEmbalajeEspecial"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Requiere embalaje especial"
+                        android:textColor="@color/color_primario"
+                        app:buttonTint="@color/color_primario" />
+
+                    <View
+                        android:id="@+id/view4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="25dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+
+                        <Button
+                            android:id="@+id/btnVolverMenuEquipaje"
+                            android:layout_width="140dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="12dp"
+                            android:backgroundTint="@color/color_primario"
+                            android:text="Volver" />
+
+                        <Button
+                            android:id="@+id/btnGuardarEquipaje"
+                            android:layout_width="140dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="12dp"
+                            android:backgroundTint="#FF6D00"
+                            android:text="Guardar" />
+                    </LinearLayout>
+
                 </LinearLayout>
 
-            </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
 
         </androidx.cardview.widget.CardView>
-
 
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
