@@ -9,8 +9,19 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.lifecycle.lifecycleScope
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,8 +31,7 @@ class MainActivity : AppCompatActivity() {
         val edNombreLogIn = findViewById<EditText>(R.id.edNombreLogIn)
         val edContraseñaLogIn = findViewById<EditText>(R.id.edContraseñaLogIn)
         val btnIniciarSesion = findViewById<Button>(R.id.btnInicioSesion)
-
-        val intentPrincipal = Intent(this, MenuPrincipal::class.java)
+        val btnGoogle = findViewById<Button>(R.id.btnGoogle)
 
         edContraseñaLogIn.setOnTouchListener { _, event ->
             val DRAWABLE_END = 2
@@ -51,16 +61,64 @@ class MainActivity : AppCompatActivity() {
             false
         }
 
+        // Login por RAM (se mantiene), pero asegurando una sesión de Firebase por debajo
         btnIniciarSesion.setOnClickListener {
-            if (edNombreLogIn.text.toString().equals("Franco") && edContraseñaLogIn.text.toString().equals("123")) {
+            if (edNombreLogIn.text.toString() == "Franco" && edContraseñaLogIn.text.toString() == "123") {
                 Toast.makeText(this, "Inicio de sesion correcto", Toast.LENGTH_LONG).show()
-                startActivity(intentPrincipal)
+                if (auth.currentUser != null) {
+                    irAlMenu(cerrar = false)
+                } else {
+                    btnIniciarSesion.isEnabled = false
+                    auth.signInAnonymously()
+                        .addOnFailureListener {
+                            Toast.makeText(this, "Sin conexión a la nube: los datos no se guardarán", Toast.LENGTH_LONG).show()
+                        }
+                        .addOnCompleteListener {
+                            btnIniciarSesion.isEnabled = true
+                            irAlMenu(cerrar = false)
+                        }
+                }
             } else {
                 Toast.makeText(this, "Error, datos invalidos", Toast.LENGTH_LONG).show()
                 edNombreLogIn.text.clear()
                 edContraseñaLogIn.text.clear()
-                return@setOnClickListener
             }
         }
+
+        btnGoogle.setOnClickListener { loginConGoogle(btnGoogle) }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val usuario = auth.currentUser
+        if (usuario != null && !usuario.isAnonymous) irAlMenu(cerrar = true)
+    }
+
+    private fun loginConGoogle(boton: Button) {
+        val opcion = GetSignInWithGoogleOption.Builder(getString(R.string.default_web_client_id)).build()
+        val pedido = GetCredentialRequest.Builder().addCredentialOption(opcion).build()
+
+        boton.isEnabled = false
+        lifecycleScope.launch {
+            try {
+                val cred = CredentialManager.create(this@MainActivity)
+                    .getCredential(this@MainActivity, pedido).credential
+                val token = GoogleIdTokenCredential.createFrom((cred as CustomCredential).data).idToken
+                auth.signInWithCredential(GoogleAuthProvider.getCredential(token, null))
+                    .addOnSuccessListener { irAlMenu(cerrar = true) }
+                    .addOnFailureListener {
+                        boton.isEnabled = true
+                        Toast.makeText(this@MainActivity, "Falló la autenticación. Revise su conexión", Toast.LENGTH_LONG).show()
+                    }
+            } catch (e: Exception) {
+                boton.isEnabled = true
+                Toast.makeText(this@MainActivity, "No se pudo iniciar sesión con Google", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun irAlMenu(cerrar: Boolean) {
+        startActivity(Intent(this, MenuPrincipal::class.java))
+        if (cerrar) finish()
     }
 }

@@ -10,7 +10,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.ortz.gestionequipaje"
+        applicationId = "com.ortz.gestionequipajereal"
         minSdk = 24
         targetSdk = 37
         versionCode = 1

@@ -1,218 +1,41 @@
 {
   "project_info": {
-    "project_number": "305098246466",
-    "project_id": "bdejemplo-11875",
-    "storage_bucket": "bdejemplo-11875.firebasestorage.app"
+    "project_number": "561463778161",
+    "project_id": "gestion-equipaje",
+    "storage_bucket": "gestion-equipaje.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:305098246466:android:f5d4a24250ab0a4601a0db",
+        "mobilesdk_app_id": "1:561463778161:android:e1c0e2f80912108a52b4d0",
         "android_client_info": {
-          "package_name": "com.example.app_02_10"
+          "package_name": "com.ortz.gestionequipajereal"
         }
       },
       "oauth_client": [
         {
-          "client_id": "305098246466-nhl4cuf8utlpronfr45hicmvbv6q5hs2.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBCP12qPWrNGN9zTiC9OiuZ-YPVyWMqi5A"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "305098246466-liurekhu30mubgh5hk4gtgetksv5jtkq.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:305098246466:android:f88f9942ffc3b59a01a0db",
-        "android_client_info": {
-          "package_name": "com.ortz.ejemplodb"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "305098246466-pg9go36dj3m9lhp9r9omoihs8hgvqk2a.apps.googleusercontent.com",
+          "client_id": "561463778161-qkop60in6pig00udd91rkug6caqojm6n.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.ortz.ejemplodb",
+            "package_name": "com.ortz.gestionequipajereal",
             "certificate_hash": "9942934473c5d64faed72edd09cd45bd0a6c344f"
           }
         },
         {
-          "client_id": "305098246466-nhl4cuf8utlpronfr45hicmvbv6q5hs2.apps.googleusercontent.com",
+          "client_id": "561463778161-0k8ee6n6aj5v38ak6tu6pm4iro16fsns.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBCP12qPWrNGN9zTiC9OiuZ-YPVyWMqi5A"
+          "current_key": "AIzaSyAcvZ0cpzbX-_D_PnOnCvX7oEPSO7EPzCg"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "305098246466-liurekhu30mubgh5hk4gtgetksv5jtkq.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:305098246466:android:8e51708117dc8ef001a0db",
-        "android_client_info": {
-          "package_name": "com.ortz.ejemploparaprueba"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "305098246466-lcbs1u46m7252t8rj0t0m1madjdu8ue6.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ortz.ejemploparaprueba",
-            "certificate_hash": "9942934473c5d64faed72edd09cd45bd0a6c344f"
-          }
-        },
-        {
-          "client_id": "305098246466-nhl4cuf8utlpronfr45hicmvbv6q5hs2.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBCP12qPWrNGN9zTiC9OiuZ-YPVyWMqi5A"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "305098246466-liurekhu30mubgh5hk4gtgetksv5jtkq.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:305098246466:android:2eae566f6cfd5ee501a0db",
-        "android_client_info": {
-          "package_name": "com.ortz.gestionequipaje"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "305098246466-hvvhnosmoetvk4tcogrrcd1snul8f0b7.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ortz.gestionequipaje",
-            "certificate_hash": "9942934473c5d64faed72edd09cd45bd0a6c344f"
-          }
-        },
-        {
-          "client_id": "305098246466-nhl4cuf8utlpronfr45hicmvbv6q5hs2.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBCP12qPWrNGN9zTiC9OiuZ-YPVyWMqi5A"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "305098246466-liurekhu30mubgh5hk4gtgetksv5jtkq.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:305098246466:android:74e1ae57d76b357101a0db",
-        "android_client_info": {
-          "package_name": "com.ortz.practica"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "305098246466-gm1en5gkemqloolbte04f593bt8nhe8h.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ortz.practica",
-            "certificate_hash": "9942934473c5d64faed72edd09cd45bd0a6c344f"
-          }
-        },
-        {
-          "client_id": "305098246466-nhl4cuf8utlpronfr45hicmvbv6q5hs2.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBCP12qPWrNGN9zTiC9OiuZ-YPVyWMqi5A"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "305098246466-liurekhu30mubgh5hk4gtgetksv5jtkq.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:305098246466:android:eff3ab1d67f9c04b01a0db",
-        "android_client_info": {
-          "package_name": "com.ortz.prueba2android"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "305098246466-btroo35s40pshetol9a9521g9amuflf3.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ortz.prueba2android",
-            "certificate_hash": "9942934473c5d64faed72edd09cd45bd0a6c344f"
-          }
-        },
-        {
-          "client_id": "305098246466-nhl4cuf8utlpronfr45hicmvbv6q5hs2.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBCP12qPWrNGN9zTiC9OiuZ-YPVyWMqi5A"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "305098246466-liurekhu30mubgh5hk4gtgetksv5jtkq.apps.googleusercontent.com",
+              "client_id": "561463778161-0k8ee6n6aj5v38ak6tu6pm4iro16fsns.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
