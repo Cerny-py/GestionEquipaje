@@ -24,6 +24,22 @@
             tools:text="Juan Pérez" />
 
         <TextView
+            android:id="@+id/tvEmailItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#757575"
+            android:textSize="14sp"
+            tools:text="juan@correo.cl" />
+
+        <TextView
+            android:id="@+id/tvComunaItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#757575"
+            android:textSize="14sp"
+            tools:text="Providencia" />
+
+        <TextView
             android:id="@+id/tvDireccionItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

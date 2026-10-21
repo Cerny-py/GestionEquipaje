@@ -53,6 +53,25 @@
                     android:layout_marginTop="20dp"
                     android:background="#EEEEEE" />
 
+                <ProgressBar
+                    android:id="@+id/progresoListaDestinatario"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:indeterminate="true"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvVacioDestinatario"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:text="No hay destinatarios registrados"
+                    android:textColor="#757575"
+                    android:visibility="gone" />
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvDestinatarios"
                     android:layout_width="match_parent"

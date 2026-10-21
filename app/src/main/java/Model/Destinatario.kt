@@ -1,9 +1,10 @@
 package Model
-import java.util.UUID
 
 data class Destinatario(
-    val id: String = UUID.randomUUID().toString(),
+    val id: String = "",
     val nombre: String,
     val direccion: String,
-    val telefono: String
+    val telefono: String,
+    val email: String,
+    val comuna: String
 )

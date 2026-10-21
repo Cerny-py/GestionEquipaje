@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "561463778161-t67jl2p56kg05ve2iu5iutrnpuptra5u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ortz.gestionequipajereal",
+            "certificate_hash": "dcf73522ae8364423d2bdb2024c0825d7bd5ecbe"
+          }
+        },
+        {
           "client_id": "561463778161-0k8ee6n6aj5v38ak6tu6pm4iro16fsns.apps.googleusercontent.com",
           "client_type": 3
         }

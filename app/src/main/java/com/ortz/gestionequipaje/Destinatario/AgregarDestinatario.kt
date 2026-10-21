@@ -1,36 +1,53 @@
 package com.ortz.gestionequipaje.Destinatario
 
-import Model.Destinatario
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Patterns
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ortz.gestionequipaje.R
-import com.ortz.gestionequipaje.data.DataStore
-import com.google.firebase.analytics.FirebaseAnalytics
+import com.ortz.gestionequipaje.data.Eventos
+import com.ortz.gestionequipaje.data.Red
+import com.ortz.gestionequipaje.data.Sesion
 
 class AgregarDestinatario : AppCompatActivity() {
 
+    private val db = FirebaseFirestore.getInstance()
     private var idEditar: String? = null
-    private lateinit var firebaseAnalytics: FirebaseAnalytics
     private var editandoMascara = false
+    private var guardando = false
+
+    private lateinit var edNombre: EditText
+    private lateinit var edDireccion: EditText
+    private lateinit var edTelefono: EditText
+    private lateinit var edEmail: EditText
+    private lateinit var edComuna: EditText
+    private lateinit var btnGuardar: Button
+    private lateinit var progreso: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_agregar_destinatario)
 
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
-
-        val edNombre = findViewById<EditText>(R.id.edNombreDestinatario)
-        val edDireccion = findViewById<EditText>(R.id.edDireccionDestinatario)
-        val edTelefono = findViewById<EditText>(R.id.edTelefonoDestinatario)
-        val btnGuardar = findViewById<Button>(R.id.btnGuardarDestinatario)
+        edNombre = findViewById(R.id.edNombreDestinatario)
+        edDireccion = findViewById(R.id.edDireccionDestinatario)
+        edTelefono = findViewById(R.id.edTelefonoDestinatario)
+        edEmail = findViewById(R.id.edEmailDestinatario)
+        edComuna = findViewById(R.id.edComunaDestinatario)
+        btnGuardar = findViewById(R.id.btnGuardarDestinatario)
+        progreso = findViewById(R.id.progresoDestinatario)
         val btnVolver = findViewById<Button>(R.id.btnVolverMenuDestinatario)
+        val tvTitulo = findViewById<TextView>(R.id.txtTituloLogIn)
 
         edTelefono.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -51,13 +68,13 @@ class AgregarDestinatario : AppCompatActivity() {
         idEditar = intent.getStringExtra("idDestinatario")
 
         if (idEditar != null) {
-            val destinatario = DataStore.obtenerDestinatario(idEditar!!)
-            destinatario?.let {
-                edNombre.setText(it.nombre)
-                edDireccion.setText(it.direccion)
-                edTelefono.setText(it.telefono)
-            }
+            edNombre.setText(intent.getStringExtra("nombre"))
+            edDireccion.setText(intent.getStringExtra("direccion"))
+            edTelefono.setText(intent.getStringExtra("telefono"))
+            edEmail.setText(intent.getStringExtra("email"))
+            edComuna.setText(intent.getStringExtra("comuna"))
             btnGuardar.text = "Actualizar"
+            tvTitulo.text = "Editar destinatario"
         }
 
         btnGuardar.setOnClickListener { guardarDestinatario() }
@@ -69,7 +86,7 @@ class AgregarDestinatario : AppCompatActivity() {
         if (!digitos.startsWith("56")) {
             digitos = "56$digitos"
         }
-        digitos = digitos.take(11) // 56 + 9 dígitos = 11 máximo
+        digitos = digitos.take(11)
 
         val sb = StringBuilder("+")
         for (i in digitos.indices) {
@@ -83,46 +100,91 @@ class AgregarDestinatario : AppCompatActivity() {
         return sb.toString().trim()
     }
 
+    private fun mostrarCarga(estado: Boolean) {
+        guardando = estado
+        progreso.visibility = if (estado) View.VISIBLE else View.GONE
+        btnGuardar.isEnabled = !estado
+    }
+
     private fun guardarDestinatario() {
-        val edNombre = findViewById<EditText>(R.id.edNombreDestinatario)
-        val edDireccion = findViewById<EditText>(R.id.edDireccionDestinatario)
-        val edTelefono = findViewById<EditText>(R.id.edTelefonoDestinatario)
+        if (guardando) return
 
         val nombre = edNombre.text.toString().trim()
         val direccion = edDireccion.text.toString().trim()
         val telefono = edTelefono.text.toString().trim()
+        val email = edEmail.text.toString().trim()
+        val comuna = edComuna.text.toString().trim()
 
-        if (nombre.isEmpty() || direccion.isEmpty() || telefono.isEmpty()) {
-            Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show()
+        if (nombre.isEmpty()) {
+            edNombre.error = "Ingresa el nombre"
+            edNombre.requestFocus()
+            return
+        }
+        if (direccion.isEmpty()) {
+            edDireccion.error = "Ingresa la dirección"
+            edDireccion.requestFocus()
+            return
+        }
+        if (telefono.filter { it.isDigit() }.length != 11) {
+            edTelefono.error = "Ingresa un teléfono válido (+56 9 1234 5678)"
+            edTelefono.requestFocus()
+            return
+        }
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            edEmail.error = "Ingresa un correo válido (nombre@correo.cl)"
+            edEmail.requestFocus()
+            return
+        }
+        if (comuna.isEmpty()) {
+            edComuna.error = "Ingresa la comuna"
+            edComuna.requestFocus()
             return
         }
 
-        if (telefono.length < 9) {
-            Toast.makeText(this, "Ingresa un teléfono válido", Toast.LENGTH_SHORT).show()
+        val usuarioId = Sesion.uid()
+        if (usuarioId.isEmpty()) {
+            Toast.makeText(this, "No hay sesión de Firebase activa, reintenta", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (!Red.hayInternet(this)) {
+            Toast.makeText(this, "Sin conexión a internet", Toast.LENGTH_SHORT).show()
             return
         }
 
-        if (idEditar != null) {
-            val actualizado = Destinatario(
-                id = idEditar!!,
-                nombre = nombre,
-                direccion = direccion,
-                telefono = telefono
-            )
-            DataStore.actualizarDestinatario(actualizado)
-            Toast.makeText(this, "Destinatario actualizado correctamente", Toast.LENGTH_SHORT).show()
+        val destinatario = hashMapOf(
+            "nombre" to nombre,
+            "direccion" to direccion,
+            "telefono" to telefono,
+            "email" to email,
+            "comuna" to comuna,
+            "usuarioId" to usuarioId
+        )
+
+        mostrarCarga(true)
+
+        val id = idEditar
+        if (id == null) {
+            db.collection("destinatarios").add(destinatario)
+                .addOnSuccessListener {
+                    Eventos.registrar(this, "registro_creado", "destinatario")
+                    Toast.makeText(this, "Destinatario registrado correctamente", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                .addOnFailureListener { e -> errorAlGuardar(e, "registrar") }
         } else {
-            val nuevo = Destinatario(nombre = nombre, direccion = direccion, telefono = telefono)
-            DataStore.agregarDestinatario(nuevo)
-
-            val bundle = Bundle().apply {
-                putString("nombre_destinatario", nombre)
-            }
-            firebaseAnalytics.logEvent("destinatario_creado", bundle)
-
-            Toast.makeText(this, "Destinatario registrado correctamente", Toast.LENGTH_SHORT).show()
+            db.collection("destinatarios").document(id).set(destinatario)
+                .addOnSuccessListener {
+                    Eventos.registrar(this, "registro_actualizado", "destinatario")
+                    Toast.makeText(this, "Destinatario actualizado correctamente", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                .addOnFailureListener { e -> errorAlGuardar(e, "actualizar") }
         }
+    }
 
-        finish()
+    private fun errorAlGuardar(e: Exception, accion: String) {
+        mostrarCarga(false)
+        FirebaseCrashlytics.getInstance().recordException(e)
+        Toast.makeText(this, "No se pudo $accion el destinatario, intenta nuevamente", Toast.LENGTH_LONG).show()
     }
 }

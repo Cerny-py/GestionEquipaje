@@ -9,6 +9,9 @@ import androidx.cardview.widget.CardView
 import com.ortz.gestionequipaje.Destinatario.MenuDestinatario
 import com.ortz.gestionequipaje.Encomienda.MenuEncomienda
 import com.ortz.gestionequipaje.Equipaje.MenuEquipaje
+import android.content.pm.ApplicationInfo
+import android.view.View
+import com.google.firebase.auth.FirebaseAuth
 
 class MenuPrincipal : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +22,15 @@ class MenuPrincipal : AppCompatActivity() {
         val cvTipoEquipaje = findViewById<CardView>(R.id.cvTipoEquipaje)
         val cvDestinatario = findViewById<CardView>(R.id.cvDestinatario)
         val cvEncomienda = findViewById<CardView>(R.id.cvEncomienda)
-        val cvCerrarSesion = findViewById<CardView>(R.id.cvCerrarSesion) //puto skjdfksajf
+        val cvCerrarSesion = findViewById<CardView>(R.id.cvCerrarSesion)
+        val cvDiagnostico = findViewById<CardView>(R.id.cvDiagnostico)
+        val esDiagnostico = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        if (!esDiagnostico) {
+            cvDiagnostico.visibility = View.GONE
+        }
+        cvDiagnostico.setOnClickListener {
+            startActivity(Intent(this, DiagnosticoActivity::class.java))
+        }
 
 
 
@@ -42,6 +53,7 @@ class MenuPrincipal : AppCompatActivity() {
                 .setTitle("Cerrar sesion")
                 .setMessage("¿Deseas cerrar sesion?")
                 .setPositiveButton("Cerrar sesion") { _, _ ->
+                    FirebaseAuth.getInstance().signOut()
                     val intent = Intent(this, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)

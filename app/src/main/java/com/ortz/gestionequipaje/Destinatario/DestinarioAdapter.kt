@@ -19,6 +19,8 @@ class DestinatarioAdapter(
         val tvNombre: TextView = view.findViewById(R.id.tvNombreItem)
         val tvDireccion: TextView = view.findViewById(R.id.tvDireccionItem)
         val tvTelefono: TextView = view.findViewById(R.id.tvTelefonoItem)
+        val tvEmail: TextView = view.findViewById(R.id.tvEmailItem)
+        val tvComuna: TextView = view.findViewById(R.id.tvComunaItem)
         val ivActualizar: ImageView = view.findViewById(R.id.ivActualizarDestinatario)
         val ivEliminar: ImageView = view.findViewById(R.id.ivEliminarDestinatario)
     }
@@ -34,6 +36,8 @@ class DestinatarioAdapter(
         holder.tvNombre.text = item.nombre
         holder.tvDireccion.text = item.direccion
         holder.tvTelefono.text = item.telefono
+        holder.tvEmail.text = item.email
+        holder.tvComuna.text = item.comuna
 
         holder.ivActualizar.setOnClickListener { onActualizar(item) }
         holder.ivEliminar.setOnClickListener { onEliminar(item) }
