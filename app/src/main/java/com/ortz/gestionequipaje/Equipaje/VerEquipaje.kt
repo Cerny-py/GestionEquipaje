@@ -2,52 +2,53 @@ package com.ortz.gestionequipaje.Equipaje
 
 import Model.TipoEquipaje
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ortz.gestionequipaje.R
+import com.ortz.gestionequipaje.data.Eventos
+import com.ortz.gestionequipaje.data.Red
+import com.ortz.gestionequipaje.data.Sesion
 
 class VerEquipaje : AppCompatActivity() {
 
+    private val db = FirebaseFirestore.getInstance()
+    private val lista = mutableListOf<TipoEquipaje>()
+    private var ocupado = false
+
     private lateinit var rvEquipajes: RecyclerView
     private lateinit var adapter: TipoEquipajeAdapter
-    private lateinit var btnVolver: Button
-    private lateinit var db: FirebaseFirestore
-    private lateinit var auth: FirebaseAuth
-
-    private val lista = mutableListOf<TipoEquipaje>()
+    private lateinit var progreso: ProgressBar
+    private lateinit var tvVacio: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ver_equipaje)
 
-        db = FirebaseFirestore.getInstance()
-        auth = FirebaseAuth.getInstance()
-
         rvEquipajes = findViewById(R.id.rvEquipajes)
-        btnVolver = findViewById(R.id.btnVolverMenuEquipaje)
+        progreso = findViewById(R.id.progresoListaEquipaje)
+        tvVacio = findViewById(R.id.tvVacioEquipaje)
+        val btnVolver = findViewById<Button>(R.id.btnVolverMenuEquipaje)
 
         rvEquipajes.layoutManager = LinearLayoutManager(this)
 
         adapter = TipoEquipajeAdapter(
             lista = lista,
-            onActualizar = { tipoSeleccionado ->
+            onActualizar = { seleccionado ->
                 val intent = Intent(this, AgregarEquipaje::class.java)
-                intent.putExtra("idEquipaje", tipoSeleccionado.id)
+                intent.putExtra("idEquipaje", seleccionado.id)
                 startActivity(intent)
             },
-            onEliminar = { tipoSeleccionado ->
-                confirmarEliminar(tipoSeleccionado)
-            }
+            onEliminar = { seleccionado -> confirmarEliminar(seleccionado) }
         )
         rvEquipajes.adapter = adapter
 
@@ -59,67 +60,82 @@ class VerEquipaje : AppCompatActivity() {
         cargarLista()
     }
 
+    private fun mostrarCarga(estado: Boolean) {
+        ocupado = estado
+        progreso.visibility = if (estado) View.VISIBLE else View.GONE
+    }
+
+    private fun actualizarVacio() {
+        tvVacio.visibility = if (lista.isEmpty()) View.VISIBLE else View.GONE
+    }
+
     private fun cargarLista() {
-        val uid = auth.currentUser?.uid
-        if (uid == null) {
-            Toast.makeText(this, "No se pudo verificar tu sesión", Toast.LENGTH_SHORT).show()
+        val usuarioId = Sesion.uid()
+        if (usuarioId.isEmpty()) {
+            Toast.makeText(this, "No hay sesión de Firebase activa, reintenta", Toast.LENGTH_SHORT).show()
+            actualizarVacio()
+            return
+        }
+        if (!Red.hayInternet(this)) {
+            Toast.makeText(this, "Sin conexión a internet", Toast.LENGTH_SHORT).show()
+            actualizarVacio()
             return
         }
 
-        ocupado(true)
+        mostrarCarga(true)
         db.collection("tiposEquipaje")
-            .whereEqualTo("usuarioId", uid)
+            .whereEqualTo("usuarioId", usuarioId)
             .get()
-            .addOnSuccessListener { snapshot ->
-                lista.clear()
-                for (doc in snapshot) {
-                    doc.toObject(TipoEquipaje::class.java)?.let { lista.add(it) }
+            .addOnCompleteListener { task ->
+                mostrarCarga(false)
+                if (task.isSuccessful) {
+                    lista.clear()
+                    for (doc in task.result) {
+                        lista.add(doc.toObject(TipoEquipaje::class.java).copy(id = doc.id))
+                    }
+                    lista.sortBy { it.nombre.lowercase() }
+                    adapter.notifyDataSetChanged()
+                    actualizarVacio()
+                    Eventos.registrar(this, "listado_consultado", "tipo_equipaje")
+                } else {
+                    task.exception?.let { FirebaseCrashlytics.getInstance().recordException(it) }
+                    Toast.makeText(this, "No se pudieron cargar los tipos de equipaje", Toast.LENGTH_SHORT).show()
                 }
-                adapter.notifyDataSetChanged()
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error al cargar los equipajes: ${it.message}", Toast.LENGTH_SHORT).show()
-            }
-            .addOnCompleteListener { ocupado(false) }
     }
 
     private fun confirmarEliminar(tipo: TipoEquipaje) {
         AlertDialog.Builder(this)
             .setTitle("Eliminar equipaje")
             .setMessage("¿Seguro que quieres eliminar \"${tipo.nombre}\"?")
-            .setPositiveButton("Eliminar") { _, _ -> eliminarTipoEquipaje(tipo) }
+            .setPositiveButton("Eliminar") { _, _ -> eliminarTipoEquipaje(tipo.id) }
             .setNegativeButton("Cancelar", null)
             .show()
     }
 
-    private fun eliminarTipoEquipaje(tipo: TipoEquipaje) {
-        if (!hayRed()) {
-            Toast.makeText(this, "Sin conexión a internet, intenta más tarde", Toast.LENGTH_SHORT).show()
+    private fun eliminarTipoEquipaje(id: String) {
+        if (id.isEmpty()) {
+            Toast.makeText(this, "El registro no tiene un id válido", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (ocupado) return
+        if (!Red.hayInternet(this)) {
+            Toast.makeText(this, "Sin conexión a internet", Toast.LENGTH_SHORT).show()
             return
         }
 
-        ocupado(true)
-        db.collection("tiposEquipaje").document(tipo.id)
-            .delete()
+        mostrarCarga(true)
+        db.collection("tiposEquipaje").document(id).delete()
             .addOnSuccessListener {
-                lista.remove(tipo)
-                adapter.notifyDataSetChanged()
+                Eventos.registrar(this, "registro_eliminado", "tipo_equipaje")
                 Toast.makeText(this, "Equipaje eliminado", Toast.LENGTH_SHORT).show()
+                mostrarCarga(false)
+                cargarLista()
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error al eliminar: ${it.message}", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                mostrarCarga(false)
+                FirebaseCrashlytics.getInstance().recordException(e)
+                Toast.makeText(this, "No se pudo eliminar el tipo de equipaje", Toast.LENGTH_SHORT).show()
             }
-            .addOnCompleteListener { ocupado(false) }
-    }
-
-    private fun ocupado(estado: Boolean) {
-        btnVolver.isEnabled = !estado
-    }
-
-    private fun hayRed(): Boolean {
-        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val red = cm.activeNetwork ?: return false
-        val capacidades = cm.getNetworkCapabilities(red) ?: return false
-        return capacidades.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 }
