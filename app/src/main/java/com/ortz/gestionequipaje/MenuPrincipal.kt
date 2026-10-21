@@ -19,7 +19,7 @@ class MenuPrincipal : AppCompatActivity() {
         val cvTipoEquipaje = findViewById<CardView>(R.id.cvTipoEquipaje)
         val cvDestinatario = findViewById<CardView>(R.id.cvDestinatario)
         val cvEncomienda = findViewById<CardView>(R.id.cvEncomienda)
-        val cvCerrarSesion = findViewById<CardView>(R.id.cvCerrarSesion)
+        val cvCerrarSesion = findViewById<CardView>(R.id.cvCerrarSesion) //puto
 
 
 
