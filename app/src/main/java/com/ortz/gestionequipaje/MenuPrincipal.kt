@@ -12,8 +12,22 @@ import com.ortz.gestionequipaje.Equipaje.MenuEquipaje
 import android.content.pm.ApplicationInfo
 import android.view.View
 import com.google.firebase.auth.FirebaseAuth
+import android.Manifest
+import android.os.Build
+import android.util.Log
+import android.content.pm.PackageManager
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.google.firebase.messaging.FirebaseMessaging
+import com.ortz.gestionequipaje.data.Notificaciones
 
 class MenuPrincipal : AppCompatActivity() {
+    private val pedirPermiso = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { concedido ->
+        if (!concedido) Toast.makeText(this, "Sin permiso no verás las notificaciones", Toast.LENGTH_LONG).show()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -61,6 +75,18 @@ class MenuPrincipal : AppCompatActivity() {
                 }
                 .setNegativeButton("Cancelar", null)
                 .show()
+        }
+        Notificaciones.crearCanal(this)
+
+        if (Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            pedirPermiso.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+            Log.d("FCM_TOKEN", token)
         }
 
     }

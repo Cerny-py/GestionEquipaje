@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -68,6 +69,17 @@
             android:name=".DiagnosticoActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <service
+            android:name=".data.ServicioMensajes"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="canal_equipaje" />
     </application>
 
 </manifest>
