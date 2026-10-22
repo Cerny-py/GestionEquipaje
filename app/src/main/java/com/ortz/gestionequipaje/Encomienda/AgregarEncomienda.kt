@@ -195,14 +195,6 @@ class AgregarEncomienda : AppCompatActivity() {
             )
             DataStore.agregarEncomienda(nuevaEncomienda)
 
-            val bundle = Bundle().apply {
-                putString("tipo_equipaje", tipoSeleccionado.nombre)
-                putString("destinatario", destinatarioSeleccionado.nombre)
-                putDouble("peso", peso)
-                putDouble("tarifa", tarifaActual)
-            }
-            firebaseAnalytics.logEvent("encomienda_creada", bundle)
-
             Toast.makeText(this, "Encomienda registrada correctamente", Toast.LENGTH_SHORT).show()
         }
 
