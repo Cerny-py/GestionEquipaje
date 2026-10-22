@@ -21,6 +21,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.google.firebase.messaging.FirebaseMessaging
 import com.ortz.gestionequipaje.data.Notificaciones
+import com.ortz.gestionequipaje.data.DataStore
 
 class MenuPrincipal : AppCompatActivity() {
     private val pedirPermiso = registerForActivityResult(
@@ -28,16 +29,22 @@ class MenuPrincipal : AppCompatActivity() {
     ) { concedido ->
         if (!concedido) Toast.makeText(this, "Sin permiso no verás las notificaciones", Toast.LENGTH_LONG).show()
     }
+    override fun onResume() {
+        super.onResume()
+        DataStore.cargarCatalogos()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_menu_principal)
+
 
         val cvTipoEquipaje = findViewById<CardView>(R.id.cvTipoEquipaje)
         val cvDestinatario = findViewById<CardView>(R.id.cvDestinatario)
         val cvEncomienda = findViewById<CardView>(R.id.cvEncomienda)
         val cvCerrarSesion = findViewById<CardView>(R.id.cvCerrarSesion)
         val cvDiagnostico = findViewById<CardView>(R.id.cvDiagnostico)
+
         val esDiagnostico = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         if (!esDiagnostico) {
             cvDiagnostico.visibility = View.GONE
@@ -88,6 +95,7 @@ class MenuPrincipal : AppCompatActivity() {
         FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
             Log.d("FCM_TOKEN", token)
         }
+
 
     }
 }

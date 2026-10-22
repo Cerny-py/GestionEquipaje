@@ -4,6 +4,7 @@ import Model.Destinatario
 import Model.TipoEquipaje
 import Model.Encomienda
 import Model.EstadoEncomienda
+import com.google.firebase.firestore.FirebaseFirestore
 
 object DataStore {
 
@@ -60,5 +61,35 @@ object DataStore {
 
     fun eliminarEncomienda(id: String) {
         encomiendas.removeAll { it.id == id }
+    }
+    fun cargarCatalogos() {
+        val uid = Sesion.uid()
+        if (uid.isEmpty()) return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("destinatarios").whereEqualTo("usuarioId", uid).get()
+            .addOnSuccessListener { resultado ->
+                destinatarios.clear()
+                for (doc in resultado) {
+                    destinatarios.add(
+                        Destinatario(
+                            id = doc.id,
+                            nombre = doc.getString("nombre") ?: "",
+                            direccion = doc.getString("direccion") ?: "",
+                            telefono = doc.getString("telefono") ?: "",
+                            email = doc.getString("email") ?: "",
+                            comuna = doc.getString("comuna") ?: ""
+                        )
+                    )
+                }
+            }
+
+        db.collection("tiposEquipaje").whereEqualTo("usuarioId", uid).get()
+            .addOnSuccessListener { resultado ->
+                tiposEquipaje.clear()
+                for (doc in resultado) {
+                    tiposEquipaje.add(doc.toObject(TipoEquipaje::class.java).copy(id = doc.id))
+                }
+            }
     }
 }
