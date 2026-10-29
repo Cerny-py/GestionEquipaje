@@ -21,7 +21,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.google.firebase.messaging.FirebaseMessaging
 import com.ortz.gestionequipaje.data.Notificaciones
-import com.ortz.gestionequipaje.data.DataStore
 
 class MenuPrincipal : AppCompatActivity() {
     private val pedirPermiso = registerForActivityResult(
@@ -29,10 +28,7 @@ class MenuPrincipal : AppCompatActivity() {
     ) { concedido ->
         if (!concedido) Toast.makeText(this, "Sin permiso no verás las notificaciones", Toast.LENGTH_LONG).show()
     }
-    override fun onResume() {
-        super.onResume()
-        DataStore.cargarCatalogos()
-    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

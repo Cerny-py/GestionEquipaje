@@ -1,14 +1,14 @@
 package Model
-import java.time.LocalDate
-import java.util.UUID
 
 data class Encomienda(
-    val id: String = UUID.randomUUID().toString(),
-    val clienteId: String,
-    val destinatarioId: String,
-    val tipoEquipajeId: String,
-    val peso: Double,
-    val valorDeclarado: Double,
-    val tarifaCalculada: Double,
-    val fechaRegistro: String = LocalDate.now().toString()
+    val id: String = "",
+    val destinatarioId: String = "",
+    val destinatarioNombre: String = "",
+    val tipoEquipajeId: String = "",
+    val tipoEquipajeNombre: String = "",
+    val peso: Double = 0.0,
+    val valorDeclarado: Double = 0.0,
+    val tarifaCalculada: Double = 0.0,
+    val fechaRegistro: String = "",
+    val usuarioId: String = ""
 )
