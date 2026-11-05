@@ -1,35 +1,74 @@
 package com.ortz.gestionequipaje.Encomienda
 
 import Model.Encomienda
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.auth.api.identity.AuthorizationRequest
+import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.Scope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ortz.gestionequipaje.R
+import com.ortz.gestionequipaje.data.ComprobantePdf
+import com.ortz.gestionequipaje.data.DriveHelper
 import com.ortz.gestionequipaje.data.Eventos
 import com.ortz.gestionequipaje.data.Red
 import com.ortz.gestionequipaje.data.Sesion
-import com.ortz.gestionequipaje.data.ComprobantePdf
+import java.io.File
 
 class VerEncomienda : AppCompatActivity() {
 
     private val db = FirebaseFirestore.getInstance()
     private val lista = mutableListOf<Encomienda>()
     private var ocupado = false
+    private var subiendoDrive = false
+    private var archivoPendiente: File? = null
 
     private lateinit var rvEncomiendas: RecyclerView
     private lateinit var adapter: EncomiendaAdapter
     private lateinit var progreso: ProgressBar
     private lateinit var tvVacio: TextView
+
+    // Se ejecuta cuando el usuario responde la pantalla "¿Permitir acceso a Drive?"
+    private val pedirPermisoDrive = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { resultado ->
+        val archivo = archivoPendiente
+        if (resultado.resultCode == Activity.RESULT_OK && archivo != null) {
+            try {
+                val auth = Identity.getAuthorizationClient(this)
+                    .getAuthorizationResultFromIntent(resultado.data)
+                val token = auth.accessToken
+                if (token != null) {
+                    subirADrive(token, archivo)
+                } else {
+                    terminarSubida()
+                    Toast.makeText(this, "No se obtuvo el permiso de Drive", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: ApiException) {
+                terminarSubida()
+                FirebaseCrashlytics.getInstance().recordException(e)
+                Toast.makeText(this, "No se pudo autorizar el acceso a Drive", Toast.LENGTH_LONG).show()
+            }
+        } else {
+            terminarSubida()
+            Toast.makeText(this, "Debes aceptar el permiso de Drive para subir el archivo", Toast.LENGTH_LONG).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,7 +123,8 @@ class VerEncomienda : AppCompatActivity() {
             .whereEqualTo("usuarioId", Sesion.uid())
             .get()
             .addOnCompleteListener { task ->
-                mostrarCarga(false)
+                // Si hay una subida a Drive en curso, el indicador de carga se mantiene
+                mostrarCarga(subiendoDrive)
                 if (task.isSuccessful) {
                     lista.clear()
                     for (doc in task.result) {
@@ -109,13 +149,82 @@ class VerEncomienda : AppCompatActivity() {
                 .setMessage("¿Qué quieres hacer con el PDF?")
                 .setPositiveButton("Abrir") { _, _ -> ComprobantePdf.abrir(this, archivo) }
                 .setNeutralButton("Compartir") { _, _ -> ComprobantePdf.compartir(this, archivo) }
-                .setNegativeButton("Cerrar", null)
+                .setNegativeButton("Subir a Drive") { _, _ -> subirComprobanteADrive(archivo) }
                 .show()
         } catch (e: Exception) {
             FirebaseCrashlytics.getInstance().recordException(e)
             Toast.makeText(this, "No se pudo generar el comprobante", Toast.LENGTH_SHORT).show()
         }
     }
+
+    // Paso 1: pedir permiso de Drive (solo drive.file: archivos creados por esta app)
+    private fun subirComprobanteADrive(archivo: File) {
+        if (ocupado || subiendoDrive) return
+        if (!Red.hayInternet(this)) {
+            Toast.makeText(this, "Sin conexión a internet", Toast.LENGTH_SHORT).show()
+            return
+        }
+        archivoPendiente = archivo
+        subiendoDrive = true
+        mostrarCarga(true)
+
+        val peticion = AuthorizationRequest.builder()
+            .setRequestedScopes(listOf(Scope("https://www.googleapis.com/auth/drive.file")))
+            .build()
+
+        Identity.getAuthorizationClient(this).authorize(peticion)
+            .addOnSuccessListener { resultado ->
+                if (resultado.hasResolution()) {
+                    // Primera vez: Google muestra la pantalla para permitir el acceso
+                    val pendiente = resultado.pendingIntent
+                    if (pendiente != null) {
+                        pedirPermisoDrive.launch(IntentSenderRequest.Builder(pendiente.intentSender).build())
+                    } else {
+                        terminarSubida()
+                    }
+                } else {
+                    val token = resultado.accessToken
+                    if (token != null) {
+                        subirADrive(token, archivo)
+                    } else {
+                        terminarSubida()
+                        Toast.makeText(this, "No se obtuvo el permiso de Drive", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                terminarSubida()
+                FirebaseCrashlytics.getInstance().recordException(e)
+                Log.e("DRIVE", "authorize falló", e)
+                Toast.makeText(this, "No se pudo pedir el permiso de Drive", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    // Paso 2: subir el PDF. La red no puede usarse en el hilo principal, por eso va en un Thread
+    private fun subirADrive(token: String, archivo: File) {
+        Thread {
+            try {
+                DriveHelper.subirComprobante(token, archivo)
+                runOnUiThread {
+                    terminarSubida()
+                    Toast.makeText(this, "Comprobante subido a la carpeta GestionEquipaje de tu Drive", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
+                Log.e("DRIVE", "subida falló", e)
+                runOnUiThread {
+                    terminarSubida()
+                    Toast.makeText(this, "No se pudo subir el comprobante a Drive", Toast.LENGTH_LONG).show()
+                }
+            }
+        }.start()
+    }
+
+    private fun terminarSubida() {
+        subiendoDrive = false
+        mostrarCarga(false)
+    }
+
     private fun confirmarEliminar(encomienda: Encomienda) {
         AlertDialog.Builder(this)
             .setTitle("Eliminar encomienda")
