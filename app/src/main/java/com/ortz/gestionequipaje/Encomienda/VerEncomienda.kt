@@ -18,6 +18,7 @@ import com.ortz.gestionequipaje.R
 import com.ortz.gestionequipaje.data.Eventos
 import com.ortz.gestionequipaje.data.Red
 import com.ortz.gestionequipaje.data.Sesion
+import com.ortz.gestionequipaje.data.ComprobantePdf
 
 class VerEncomienda : AppCompatActivity() {
 
@@ -54,7 +55,8 @@ class VerEncomienda : AppCompatActivity() {
                 intent.putExtra("fechaRegistro", seleccionada.fechaRegistro)
                 startActivity(intent)
             },
-            onEliminar = { seleccionada -> confirmarEliminar(seleccionada) }
+            onEliminar = { seleccionada -> confirmarEliminar(seleccionada) },
+            onPdf = { seleccionada -> generarComprobante(seleccionada) }
         )
         rvEncomiendas.adapter = adapter
 
@@ -99,6 +101,21 @@ class VerEncomienda : AppCompatActivity() {
             }
     }
 
+    private fun generarComprobante(encomienda: Encomienda) {
+        try {
+            val archivo = ComprobantePdf.generar(this, encomienda)
+            AlertDialog.Builder(this)
+                .setTitle("Comprobante generado")
+                .setMessage("¿Qué quieres hacer con el PDF?")
+                .setPositiveButton("Abrir") { _, _ -> ComprobantePdf.abrir(this, archivo) }
+                .setNeutralButton("Compartir") { _, _ -> ComprobantePdf.compartir(this, archivo) }
+                .setNegativeButton("Cerrar", null)
+                .show()
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            Toast.makeText(this, "No se pudo generar el comprobante", Toast.LENGTH_SHORT).show()
+        }
+    }
     private fun confirmarEliminar(encomienda: Encomienda) {
         AlertDialog.Builder(this)
             .setTitle("Eliminar encomienda")

@@ -12,13 +12,15 @@ import com.ortz.gestionequipaje.R
 class EncomiendaAdapter(
     private val lista: List<Encomienda>,
     private val onActualizar: (Encomienda) -> Unit,
-    private val onEliminar: (Encomienda) -> Unit
+    private val onEliminar: (Encomienda) -> Unit,
+    private val onPdf: (Encomienda) -> Unit
 ) : RecyclerView.Adapter<EncomiendaAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvDestinatario: TextView = view.findViewById(R.id.tvDestinatarioItem)
         val tvTipoEquipaje: TextView = view.findViewById(R.id.tvTipoEquipajeItem)
         val tvTarifa: TextView = view.findViewById(R.id.tvTarifaItem)
+        val ivPdf: ImageView = view.findViewById(R.id.ivPdfEncomienda)
         val ivActualizar: ImageView = view.findViewById(R.id.ivActualizarEncomienda)
         val ivEliminar: ImageView = view.findViewById(R.id.ivEliminarEncomienda)
     }
@@ -35,6 +37,7 @@ class EncomiendaAdapter(
         holder.tvDestinatario.text = item.destinatarioNombre
         holder.tvTipoEquipaje.text = "${item.tipoEquipajeNombre} · ${item.peso} kg"
         holder.tvTarifa.text = "Tarifa: $${item.tarifaCalculada.toInt()}"
+        holder.ivPdf.setOnClickListener { onPdf(item) }
         holder.ivActualizar.setOnClickListener { onActualizar(item) }
         holder.ivEliminar.setOnClickListener { onEliminar(item) }
     }
