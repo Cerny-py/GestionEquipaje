@@ -39,15 +39,7 @@ class MenuPrincipal : AppCompatActivity() {
         val cvDestinatario = findViewById<CardView>(R.id.cvDestinatario)
         val cvEncomienda = findViewById<CardView>(R.id.cvEncomienda)
         val cvCerrarSesion = findViewById<CardView>(R.id.cvCerrarSesion)
-        val cvDiagnostico = findViewById<CardView>(R.id.cvDiagnostico)
 
-        val esDiagnostico = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        if (!esDiagnostico) {
-            cvDiagnostico.visibility = View.GONE
-        }
-        cvDiagnostico.setOnClickListener {
-            startActivity(Intent(this, DiagnosticoActivity::class.java))
-        }
 
 
 
