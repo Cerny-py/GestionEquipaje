@@ -21,6 +21,7 @@ import com.ortz.gestionequipaje.data.Sesion
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.ortz.gestionequipaje.data.Distancia
 
 class AgregarEncomienda : AppCompatActivity() {
 
@@ -41,6 +42,8 @@ class AgregarEncomienda : AppCompatActivity() {
     private var idEditar: String? = null
     private var fechaOriginal = ""
     private var guardando = false
+    private var distanciaKm: Double? = null
+    private var buscandoDistancia = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +79,7 @@ class AgregarEncomienda : AppCompatActivity() {
 
         spnDestinatario.setOnItemClickListener { _, _, position, _ ->
             posicionDestinatario = position
+            calcularDistancia(destinatarios[position].comuna)
         }
 
         btnGuardar.setOnClickListener { guardarEncomienda() }
@@ -168,6 +172,7 @@ class AgregarEncomienda : AppCompatActivity() {
 
         if (posicionDestinatario >= 0) {
             spnDestinatario.setText(destinatarios[posicionDestinatario].nombre, false)
+            calcularDistancia(destinatarios[posicionDestinatario].comuna)
         }
         if (posicionTipoEquipaje >= 0) {
             spnTipoEquipaje.setText(tiposEquipaje[posicionTipoEquipaje].nombre, false)
@@ -180,6 +185,37 @@ class AgregarEncomienda : AppCompatActivity() {
         tvTarifaCalculada.text = "Tarifa: $${tarifaActual.toInt()}"
     }
 
+    private fun calcularDistancia(comuna: String) {
+        distanciaKm = null
+        buscandoDistancia = true
+        tvTarifaCalculada.text = "Calculando distancia..."
+
+        if (!Red.hayInternet(this)) {
+            buscandoDistancia = false
+            recalcularTarifa()
+            return
+        }
+
+        Thread {
+            var km: Double? = null
+            try {
+                km = Distancia.buscarKm(comuna)
+            } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
+            }
+
+            runOnUiThread {
+                if (isFinishing) return@runOnUiThread
+                val vigente = destinatarios.getOrNull(posicionDestinatario)?.comuna == comuna
+                if (vigente) {
+                    distanciaKm = km
+                    buscandoDistancia = false
+                    recalcularTarifa()
+                }
+            }
+        }.start()
+    }
+
     private fun recalcularTarifa() {
         if (posicionTipoEquipaje < 0 || posicionTipoEquipaje >= tiposEquipaje.size) {
             tvTarifaCalculada.text = "Tarifa: $0"
@@ -189,15 +225,26 @@ class AgregarEncomienda : AppCompatActivity() {
 
         val tipoSeleccionado = tiposEquipaje[posicionTipoEquipaje]
         val peso = edPeso.text.toString().toDoubleOrNull() ?: 0.0
+        val km = distanciaKm ?: 0.0
 
-        val subtotal = tipoSeleccionado.tarifaBase + (peso * 500)
+        val subtotal = tipoSeleccionado.tarifaBase + (km * 30) + (peso * 800)
         val iva = subtotal * 0.19
         tarifaActual = subtotal + iva
-        tvTarifaCalculada.text = "Tarifa: $${tarifaActual.toInt()} (IVA incluido)"
+
+        val nota = if (distanciaKm == null) {
+            " (estimada, sin distancia)"
+        } else {
+            " (${km.toInt()} km, IVA incluido)"
+        }
+        tvTarifaCalculada.text = "Tarifa: $${tarifaActual.toInt()}$nota"
     }
 
     private fun guardarEncomienda() {
         if (guardando) return
+        if (buscandoDistancia) {
+            Toast.makeText(this, "Espera, calculando la distancia...", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         val pesoTexto = edPeso.text.toString().trim()
         val valorTexto = edValorDeclarado.text.toString().trim()

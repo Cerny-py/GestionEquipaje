@@ -18,6 +18,9 @@ import com.ortz.gestionequipaje.R
 import com.ortz.gestionequipaje.data.Eventos
 import com.ortz.gestionequipaje.data.Red
 import com.ortz.gestionequipaje.data.Sesion
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import com.ortz.gestionequipaje.data.Geografia
 
 class AgregarDestinatario : AppCompatActivity() {
 
@@ -30,7 +33,9 @@ class AgregarDestinatario : AppCompatActivity() {
     private lateinit var edDireccion: EditText
     private lateinit var edTelefono: EditText
     private lateinit var edEmail: EditText
-    private lateinit var edComuna: EditText
+
+    private lateinit var edRegion: AutoCompleteTextView
+    private lateinit var edComuna: AutoCompleteTextView
     private lateinit var btnGuardar: Button
     private lateinit var progreso: ProgressBar
 
@@ -43,7 +48,18 @@ class AgregarDestinatario : AppCompatActivity() {
         edDireccion = findViewById(R.id.edDireccionDestinatario)
         edTelefono = findViewById(R.id.edTelefonoDestinatario)
         edEmail = findViewById(R.id.edEmailDestinatario)
+        edRegion = findViewById(R.id.edRegionDestinatario)
+
         edComuna = findViewById(R.id.edComunaDestinatario)
+
+        edRegion.setAdapter(
+            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, Geografia.comunasPorRegion.keys.toList())
+        )
+        edRegion.setOnItemClickListener { _, _, _, _ ->
+            edComuna.setText("", false)
+            cargarComunas(edRegion.text.toString())
+        }
+
         btnGuardar = findViewById(R.id.btnGuardarDestinatario)
         progreso = findViewById(R.id.progresoDestinatario)
         val btnVolver = findViewById<Button>(R.id.btnVolverMenuDestinatario)
@@ -72,7 +88,15 @@ class AgregarDestinatario : AppCompatActivity() {
             edDireccion.setText(intent.getStringExtra("direccion"))
             edTelefono.setText(intent.getStringExtra("telefono"))
             edEmail.setText(intent.getStringExtra("email"))
-            edComuna.setText(intent.getStringExtra("comuna"))
+            val comunaGuardada = intent.getStringExtra("comuna") ?: ""
+
+            val regionGuardada = Geografia.regionDe(comunaGuardada)
+            if (regionGuardada != null) {
+                edRegion.setText(regionGuardada, false)
+                cargarComunas(regionGuardada)
+            }
+            edComuna.setText(comunaGuardada, false)
+
             btnGuardar.text = "Actualizar"
             tvTitulo.text = "Editar destinatario"
         }
@@ -106,6 +130,11 @@ class AgregarDestinatario : AppCompatActivity() {
         btnGuardar.isEnabled = !estado
     }
 
+    private fun cargarComunas(region: String) {
+        val comunas = Geografia.comunasPorRegion[region] ?: emptyList()
+        edComuna.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, comunas))
+    }
+
     private fun guardarDestinatario() {
         if (guardando) return
 
@@ -133,6 +162,11 @@ class AgregarDestinatario : AppCompatActivity() {
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             edEmail.error = "Ingresa un correo válido (nombre@correo.cl)"
             edEmail.requestFocus()
+            return
+        }
+        if (edRegion.text.toString().isEmpty()) {
+            edRegion.error = "Selecciona la región"
+            edRegion.requestFocus()
             return
         }
         if (comuna.isEmpty()) {
