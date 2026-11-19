@@ -1,5 +1,7 @@
 package com.ortz.gestionequipaje.data
 
+import com.google.zxing.BarcodeFormat
+import com.journeyapps.barcodescanner.BarcodeEncoder
 import Model.Encomienda
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -16,6 +18,7 @@ import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
 
 object ComprobantePdf {
 
@@ -117,6 +120,21 @@ object ComprobantePdf {
             isAntiAlias = true
         }
         canvas.drawText("$${formatearPesos(e.tarifaCalculada)}", ANCHO - 60f, y + 70f, montoTotal)
+        val tamanoQr = 130
+        val xQr = (ANCHO - tamanoQr) / 2f
+        val yQr = y + 110f
+
+        val encoder = BarcodeEncoder()
+        val bitmapQr = encoder.encodeBitmap(e.id, BarcodeFormat.QR_CODE, tamanoQr, tamanoQr)
+        canvas.drawBitmap(bitmapQr, xQr, yQr, null)
+
+        val etiquetaQr = Paint().apply {
+            color = gris
+            textSize = 11f
+            textAlign = Paint.Align.CENTER
+            isAntiAlias = true
+        }
+        canvas.drawText("Escanea para ver el seguimiento", ANCHO / 2f, yQr + tamanoQr + 18f, etiquetaQr)
 
         val pie = Paint().apply {
             color = gris

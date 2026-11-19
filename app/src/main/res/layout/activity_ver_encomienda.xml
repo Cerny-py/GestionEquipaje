@@ -75,11 +75,19 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvEncomiendas"
                     android:layout_width="match_parent"
-                    android:layout_height="355dp"
+                    android:layout_height="300dp"
                     android:layout_weight="1"
                     android:clipToPadding="false"
                     android:paddingHorizontal="4dp"
                     android:paddingTop="12dp" />
+                <Button
+                    android:id="@+id/btnEscanearQr"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="10dp"
+                    android:backgroundTint="#FF6D00"
+                    android:text="Escanear QR"
+                    app:cornerRadius="12dp" />
 
                 <Button
                     android:id="@+id/btnVolverMenuEncomienda"

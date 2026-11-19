@@ -29,6 +29,9 @@ import com.ortz.gestionequipaje.data.Eventos
 import com.ortz.gestionequipaje.data.Red
 import com.ortz.gestionequipaje.data.Sesion
 import java.io.File
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 
 class VerEncomienda : AppCompatActivity() {
 
@@ -43,7 +46,6 @@ class VerEncomienda : AppCompatActivity() {
     private lateinit var progreso: ProgressBar
     private lateinit var tvVacio: TextView
 
-    // Se ejecuta cuando el usuario responde la pantalla "¿Permitir acceso a Drive?"
     private val pedirPermisoDrive = registerForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult()
     ) { resultado ->
@@ -78,7 +80,7 @@ class VerEncomienda : AppCompatActivity() {
         progreso = findViewById(R.id.progresoListaEncomienda)
         tvVacio = findViewById(R.id.tvVacioEncomienda)
         val btnVolver = findViewById<Button>(R.id.btnVolverMenuEncomienda)
-
+        val btnEscanearQr = findViewById<Button>(R.id.btnEscanearQr)
         rvEncomiendas.layoutManager = LinearLayoutManager(this)
 
         adapter = EncomiendaAdapter(
@@ -100,6 +102,7 @@ class VerEncomienda : AppCompatActivity() {
         rvEncomiendas.adapter = adapter
 
         btnVolver.setOnClickListener { finish() }
+        btnEscanearQr.setOnClickListener { escanearQr() }
     }
 
     override fun onResume() {
@@ -123,7 +126,6 @@ class VerEncomienda : AppCompatActivity() {
             .whereEqualTo("usuarioId", Sesion.uid())
             .get()
             .addOnCompleteListener { task ->
-                // Si hay una subida a Drive en curso, el indicador de carga se mantiene
                 mostrarCarga(subiendoDrive)
                 if (task.isSuccessful) {
                     lista.clear()
@@ -157,7 +159,6 @@ class VerEncomienda : AppCompatActivity() {
         }
     }
 
-    // Paso 1: pedir permiso de Drive (solo drive.file: archivos creados por esta app)
     private fun subirComprobanteADrive(archivo: File) {
         if (ocupado || subiendoDrive) return
         if (!Red.hayInternet(this)) {
@@ -175,7 +176,6 @@ class VerEncomienda : AppCompatActivity() {
         Identity.getAuthorizationClient(this).authorize(peticion)
             .addOnSuccessListener { resultado ->
                 if (resultado.hasResolution()) {
-                    // Primera vez: Google muestra la pantalla para permitir el acceso
                     val pendiente = resultado.pendingIntent
                     if (pendiente != null) {
                         pedirPermisoDrive.launch(IntentSenderRequest.Builder(pendiente.intentSender).build())
@@ -200,7 +200,6 @@ class VerEncomienda : AppCompatActivity() {
             }
     }
 
-    // Paso 2: subir el PDF. La red no puede usarse en el hilo principal, por eso va en un Thread
     private fun subirADrive(token: String, archivo: File) {
         Thread {
             try {
@@ -231,6 +230,68 @@ class VerEncomienda : AppCompatActivity() {
             .setMessage("¿Seguro que quieres eliminar esta encomienda?")
             .setPositiveButton("Eliminar") { _, _ -> eliminarEncomienda(encomienda.id) }
             .setNegativeButton("Cancelar", null)
+            .show()
+    }
+    private fun escanearQr() {
+        if (!Red.hayInternet(this)) {
+            Toast.makeText(this, "Sin conexión a internet", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val opciones = GmsBarcodeScannerOptions.Builder()
+            .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+            .build()
+
+        GmsBarcodeScanning.getClient(this, opciones).startScan()
+            .addOnSuccessListener { codigo ->
+                val idEncomienda = codigo.rawValue
+                if (idEncomienda.isNullOrEmpty()) {
+                    Toast.makeText(this, "El código QR no es válido", Toast.LENGTH_SHORT).show()
+                } else {
+                    buscarEncomiendaPorId(idEncomienda)
+                }
+            }
+            .addOnCanceledListener {
+                // el usuario cerró el escáner, no hacemos nada
+            }
+            .addOnFailureListener { e ->
+                FirebaseCrashlytics.getInstance().recordException(e)
+                Toast.makeText(this, "No se pudo abrir el escáner", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun buscarEncomiendaPorId(id: String) {
+        mostrarCarga(true)
+        db.collection("encomiendas").document(id).get()
+            .addOnSuccessListener { doc ->
+                mostrarCarga(subiendoDrive)
+                if (!doc.exists()) {
+                    Toast.makeText(this, "No existe una encomienda con ese código", Toast.LENGTH_LONG).show()
+                    return@addOnSuccessListener
+                }
+                val encomienda = doc.toObject(Encomienda::class.java)?.copy(id = doc.id)
+                if (encomienda != null) {
+                    mostrarEstado(encomienda)
+                } else {
+                    Toast.makeText(this, "No se pudo leer la encomienda escaneada", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                mostrarCarga(subiendoDrive)
+                FirebaseCrashlytics.getInstance().recordException(e)
+                Toast.makeText(this, "No se pudo consultar la encomienda", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun mostrarEstado(encomienda: Encomienda) {
+        AlertDialog.Builder(this)
+            .setTitle("Seguimiento de encomienda")
+            .setMessage(
+                "Destinatario: ${encomienda.destinatarioNombre}\n" +
+                        "Tipo de equipaje: ${encomienda.tipoEquipajeNombre}\n" +
+                        "Estado: ${encomienda.estado.uppercase()}"
+            )
+            .setPositiveButton("Cerrar", null)
             .show()
     }
 

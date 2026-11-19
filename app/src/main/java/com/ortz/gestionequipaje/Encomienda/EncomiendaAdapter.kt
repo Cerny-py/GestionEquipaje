@@ -23,6 +23,8 @@ class EncomiendaAdapter(
         val ivPdf: ImageView = view.findViewById(R.id.ivPdfEncomienda)
         val ivActualizar: ImageView = view.findViewById(R.id.ivActualizarEncomienda)
         val ivEliminar: ImageView = view.findViewById(R.id.ivEliminarEncomienda)
+        val tvEstado: TextView = view.findViewById(R.id.tvEstadoItem)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -40,6 +42,7 @@ class EncomiendaAdapter(
         holder.ivPdf.setOnClickListener { onPdf(item) }
         holder.ivActualizar.setOnClickListener { onActualizar(item) }
         holder.ivEliminar.setOnClickListener { onEliminar(item) }
+        holder.tvEstado.text = item.estado.uppercase()
     }
 
     override fun getItemCount() = lista.size

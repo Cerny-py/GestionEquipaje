@@ -14,7 +14,7 @@ android {
         applicationId = "com.ortz.gestionequipajereal"
         minSdk = 24
         targetSdk = 37
-        versionCode = 2
+        versionCode = 3
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -53,6 +53,6 @@ dependencies {
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
     implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.firebase:firebase-messaging")
-
-
+    implementation(libs.zxing.android.embedded)
+    implementation(libs.play.services.code.scanner)
 }

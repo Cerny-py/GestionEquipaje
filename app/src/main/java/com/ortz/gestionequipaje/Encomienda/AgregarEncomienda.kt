@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import com.ortz.gestionequipaje.data.Distancia
+import com.google.firebase.firestore.SetOptions
 
 class AgregarEncomienda : AppCompatActivity() {
 
@@ -310,6 +311,10 @@ class AgregarEncomienda : AppCompatActivity() {
             "usuarioId" to usuarioId
         )
 
+        if (idEditar == null) {
+            encomienda["estado"] = "registrada"
+        }
+
         guardando = true
         btnGuardar.isEnabled = false
 
@@ -323,7 +328,7 @@ class AgregarEncomienda : AppCompatActivity() {
                 }
                 .addOnFailureListener { e -> errorAlGuardar(e, "registrar") }
         } else {
-            db.collection("encomiendas").document(id).set(encomienda)
+            db.collection("encomiendas").document(id).set(encomienda, SetOptions.merge())
                 .addOnSuccessListener {
                     Eventos.registrar(this, "registro_actualizado", "encomienda")
                     Toast.makeText(this, "Encomienda actualizada correctamente", Toast.LENGTH_SHORT).show()
