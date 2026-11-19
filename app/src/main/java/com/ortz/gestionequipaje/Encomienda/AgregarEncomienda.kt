@@ -23,6 +23,8 @@ import java.util.Date
 import java.util.Locale
 import com.ortz.gestionequipaje.data.Distancia
 import com.google.firebase.firestore.SetOptions
+import android.app.AlertDialog
+import com.ortz.gestionequipaje.data.Entrega
 
 class AgregarEncomienda : AppCompatActivity() {
 
@@ -239,7 +241,18 @@ class AgregarEncomienda : AppCompatActivity() {
         }
         tvTarifaCalculada.text = "Tarifa: $${tarifaActual.toInt()}$nota"
     }
-
+    private fun ofrecerAgendar(fechaEntrega: String, destinatario: String, id: String) {
+        AlertDialog.Builder(this)
+            .setTitle("Encomienda registrada")
+            .setMessage("Llegada estimada: ${Entrega.formatoLegible(fechaEntrega)}.\n¿Quieres agendarla en tu calendario?")
+            .setPositiveButton("Agendar") { _, _ ->
+                Entrega.agendarFecha(this, fechaEntrega, destinatario, id)
+                finish()
+            }
+            .setNegativeButton("Ahora no") { _, _ -> finish() }
+            .setCancelable(false)
+            .show()
+    }
     private fun guardarEncomienda() {
         if (guardando) return
         if (buscandoDistancia) {
@@ -298,8 +311,9 @@ class AgregarEncomienda : AppCompatActivity() {
         } else {
             SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         }
-
+        val fechaEntrega = Entrega.calcularFecha(fecha, Entrega.diasHabilesPorDistancia(distanciaKm))
         val encomienda = hashMapOf(
+            "fechaEntregaEstimada" to fechaEntrega,
             "destinatarioId" to destinatario.id,
             "destinatarioNombre" to destinatario.nombre,
             "tipoEquipajeId" to tipo.id,
@@ -321,22 +335,12 @@ class AgregarEncomienda : AppCompatActivity() {
         val id = idEditar
         if (id == null) {
             db.collection("encomiendas").add(encomienda)
-                .addOnSuccessListener {
+                .addOnSuccessListener { referencia ->
                     Eventos.registrar(this, "registro_creado", "encomienda")
-                    Toast.makeText(this, "Encomienda registrada correctamente", Toast.LENGTH_SHORT).show()
-                    finish()
+                    ofrecerAgendar(fechaEntrega, destinatario.nombre, referencia.id)
                 }
-                .addOnFailureListener { e -> errorAlGuardar(e, "registrar") }
-        } else {
-            db.collection("encomiendas").document(id).set(encomienda, SetOptions.merge())
-                .addOnSuccessListener {
-                    Eventos.registrar(this, "registro_actualizado", "encomienda")
-                    Toast.makeText(this, "Encomienda actualizada correctamente", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
-                .addOnFailureListener { e -> errorAlGuardar(e, "actualizar") }
-        }
     }
+        }
 
     private fun errorAlGuardar(e: Exception, accion: String) {
         guardando = false
@@ -345,3 +349,4 @@ class AgregarEncomienda : AppCompatActivity() {
         Toast.makeText(this, "No se pudo $accion la encomienda, intenta nuevamente", Toast.LENGTH_LONG).show()
     }
 }
+

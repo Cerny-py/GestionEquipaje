@@ -11,5 +11,6 @@ data class Encomienda(
     val tarifaCalculada: Double = 0.0,
     val fechaRegistro: String = "",
     val usuarioId: String = "",
-    val estado: String = "registrada"
+    val estado: String = "registrada",
+    val fechaEntregaEstimada: String = ""
 )

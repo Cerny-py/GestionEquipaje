@@ -73,6 +73,14 @@
                 android:src="@drawable/icono_pdf" />
 
             <ImageView
+                android:id="@+id/ivAgendarEncomienda"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="30dp"
+                android:src="@drawable/icono_agendar"
+                android:tint="@color/color_primario" />
+
+            <ImageView
                 android:id="@+id/ivActualizarEncomienda"
                 android:layout_width="30dp"
                 android:layout_height="30dp"

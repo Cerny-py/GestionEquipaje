@@ -32,6 +32,8 @@ import java.io.File
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
+import android.content.ActivityNotFoundException
+import com.ortz.gestionequipaje.data.Entrega
 
 class VerEncomienda : AppCompatActivity() {
 
@@ -80,7 +82,7 @@ class VerEncomienda : AppCompatActivity() {
         progreso = findViewById(R.id.progresoListaEncomienda)
         tvVacio = findViewById(R.id.tvVacioEncomienda)
         val btnVolver = findViewById<Button>(R.id.btnVolverMenuEncomienda)
-        val btnEscanearQr = findViewById<Button>(R.id.btnEscanearQr)
+
         rvEncomiendas.layoutManager = LinearLayoutManager(this)
 
         adapter = EncomiendaAdapter(
@@ -97,17 +99,21 @@ class VerEncomienda : AppCompatActivity() {
                 startActivity(intent)
             },
             onEliminar = { seleccionada -> confirmarEliminar(seleccionada) },
-            onPdf = { seleccionada -> generarComprobante(seleccionada) }
+            onPdf = { seleccionada -> generarComprobante(seleccionada) },
+            onAgendar = { seleccionada -> agendarEntrega(seleccionada) }
         )
         rvEncomiendas.adapter = adapter
 
         btnVolver.setOnClickListener { finish() }
-        btnEscanearQr.setOnClickListener { escanearQr() }
     }
 
     override fun onResume() {
         super.onResume()
         cargarEncomiendas()
+    }
+
+    private fun agendarEntrega(encomienda: Encomienda) {
+        Entrega.agendar(this, encomienda)
     }
 
     private fun mostrarCarga(estado: Boolean) {
