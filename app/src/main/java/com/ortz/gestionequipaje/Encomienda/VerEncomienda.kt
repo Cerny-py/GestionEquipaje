@@ -34,6 +34,7 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import android.content.ActivityNotFoundException
 import com.ortz.gestionequipaje.data.Entrega
+import android.net.Uri
 
 class VerEncomienda : AppCompatActivity() {
 
@@ -82,6 +83,7 @@ class VerEncomienda : AppCompatActivity() {
         progreso = findViewById(R.id.progresoListaEncomienda)
         tvVacio = findViewById(R.id.tvVacioEncomienda)
         val btnVolver = findViewById<Button>(R.id.btnVolverMenuEncomienda)
+        val btnEscanearQr = findViewById<Button>(R.id.btnEscanearQr)
 
         rvEncomiendas.layoutManager = LinearLayoutManager(this)
 
@@ -105,6 +107,7 @@ class VerEncomienda : AppCompatActivity() {
         rvEncomiendas.adapter = adapter
 
         btnVolver.setOnClickListener { finish() }
+        btnEscanearQr.setOnClickListener { escanearQr() }
     }
 
     override fun onResume() {
@@ -258,7 +261,6 @@ class VerEncomienda : AppCompatActivity() {
                 }
             }
             .addOnCanceledListener {
-                // el usuario cerró el escáner, no hacemos nada
             }
             .addOnFailureListener { e ->
                 FirebaseCrashlytics.getInstance().recordException(e)
@@ -270,17 +272,18 @@ class VerEncomienda : AppCompatActivity() {
         mostrarCarga(true)
         db.collection("encomiendas").document(id).get()
             .addOnSuccessListener { doc ->
-                mostrarCarga(subiendoDrive)
                 if (!doc.exists()) {
+                    mostrarCarga(subiendoDrive)
                     Toast.makeText(this, "No existe una encomienda con ese código", Toast.LENGTH_LONG).show()
                     return@addOnSuccessListener
                 }
                 val encomienda = doc.toObject(Encomienda::class.java)?.copy(id = doc.id)
-                if (encomienda != null) {
-                    mostrarEstado(encomienda)
-                } else {
+                if (encomienda == null) {
+                    mostrarCarga(subiendoDrive)
                     Toast.makeText(this, "No se pudo leer la encomienda escaneada", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
                 }
+                buscarDireccionDestinatario(encomienda)
             }
             .addOnFailureListener { e ->
                 mostrarCarga(subiendoDrive)
@@ -289,16 +292,44 @@ class VerEncomienda : AppCompatActivity() {
             }
     }
 
-    private fun mostrarEstado(encomienda: Encomienda) {
+    private fun buscarDireccionDestinatario(encomienda: Encomienda) {
+        db.collection("destinatarios").document(encomienda.destinatarioId).get()
+            .addOnSuccessListener { doc ->
+                mostrarCarga(subiendoDrive)
+                val direccion = doc.getString("direccion") ?: ""
+                val comuna = doc.getString("comuna") ?: ""
+                if (direccion.isEmpty()) {
+                    Toast.makeText(this, "El destinatario no tiene dirección registrada", Toast.LENGTH_LONG).show()
+                    return@addOnSuccessListener
+                }
+                confirmarAbrirMaps(encomienda, "$direccion, $comuna")
+            }
+            .addOnFailureListener { e ->
+                mostrarCarga(subiendoDrive)
+                FirebaseCrashlytics.getInstance().recordException(e)
+                Toast.makeText(this, "No se pudo obtener la dirección del destinatario", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun confirmarAbrirMaps(encomienda: Encomienda, direccionCompleta: String) {
         AlertDialog.Builder(this)
-            .setTitle("Seguimiento de encomienda")
-            .setMessage(
-                "Destinatario: ${encomienda.destinatarioNombre}\n" +
-                        "Tipo de equipaje: ${encomienda.tipoEquipajeNombre}\n" +
-                        "Estado: ${encomienda.estado.uppercase()}"
-            )
-            .setPositiveButton("Cerrar", null)
+            .setTitle("Encomienda encontrada")
+            .setMessage("Destinatario: ${encomienda.destinatarioNombre}\nDirección: $direccionCompleta\n\n¿Abrir la ruta en Google Maps?")
+            .setPositiveButton("Abrir Maps") { _, _ -> abrirMapsConDireccion(direccionCompleta) }
+            .setNegativeButton("Cancelar", null)
             .show()
+    }
+
+    private fun abrirMapsConDireccion(direccion: String) {
+        val uri = Uri.parse("https://www.google.com/maps/dir/?api=1&destination=" + Uri.encode(direccion))
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+        intent.setPackage("com.google.android.apps.maps")
+        try {
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            intent.setPackage(null)
+            startActivity(intent)
+        }
     }
 
     private fun eliminarEncomienda(id: String) {
