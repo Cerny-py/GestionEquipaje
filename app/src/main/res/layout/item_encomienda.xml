@@ -11,7 +11,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -61,22 +61,21 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
             android:gravity="center"
-            android:orientation="horizontal"
-            android:padding="10dp">
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/ivPdfEncomienda"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginStart="60dp"
                 android:src="@drawable/icono_pdf" />
 
             <ImageView
                 android:id="@+id/ivAgendarEncomienda"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginStart="30dp"
+                android:layout_marginStart="24dp"
                 android:src="@drawable/icono_agendar"
                 android:tint="@color/color_primario" />
 
@@ -84,7 +83,7 @@
                 android:id="@+id/ivActualizarEncomienda"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginStart="30dp"
+                android:layout_marginStart="24dp"
                 android:src="@drawable/icono_actualizar"
                 android:tint="@color/color_primario" />
 
@@ -92,7 +91,7 @@
                 android:id="@+id/ivEliminarEncomienda"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginStart="30dp"
+                android:layout_marginStart="24dp"
                 android:src="@drawable/icono_eliminar"
                 android:tint="#FF2C2C" />
         </LinearLayout>
