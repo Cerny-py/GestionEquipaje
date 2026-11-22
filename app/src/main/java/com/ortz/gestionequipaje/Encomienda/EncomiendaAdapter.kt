@@ -14,10 +14,12 @@ class EncomiendaAdapter(
     private val onActualizar: (Encomienda) -> Unit,
     private val onEliminar: (Encomienda) -> Unit,
     private val onAgendar: (Encomienda) -> Unit,
-    private val onPdf: (Encomienda) -> Unit
+    private val onPdf: (Encomienda) -> Unit,
+    private val onChat: (Encomienda) -> Unit
 ) : RecyclerView.Adapter<EncomiendaAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val ivChat: ImageView = view.findViewById(R.id.ivChatEncomienda)
         val tvDestinatario: TextView = view.findViewById(R.id.tvDestinatarioItem)
         val tvTipoEquipaje: TextView = view.findViewById(R.id.tvTipoEquipajeItem)
         val tvTarifa: TextView = view.findViewById(R.id.tvTarifaItem)
@@ -51,6 +53,7 @@ class EncomiendaAdapter(
         holder.ivEliminar.setOnClickListener { onEliminar(item) }
         holder.tvEstado.text = item.estado.uppercase()
         holder.ivAgendar.setOnClickListener { onAgendar(item) }
+        holder.ivChat.setOnClickListener { onChat(item) }
     }
 
     override fun getItemCount() = lista.size

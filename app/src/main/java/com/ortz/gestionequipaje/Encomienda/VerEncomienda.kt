@@ -100,11 +100,18 @@ class VerEncomienda : AppCompatActivity() {
             },
             onEliminar = { seleccionada -> confirmarEliminar(seleccionada) },
             onPdf = { seleccionada -> generarComprobante(seleccionada) },
+            onChat = { seleccionada -> abrirChat(seleccionada) },
             onAgendar = { seleccionada -> agendarEntrega(seleccionada) }
         )
         rvEncomiendas.adapter = adapter
 
         btnVolver.setOnClickListener { finish() }
+    }
+    private fun abrirChat(encomienda: Encomienda) {
+        val intent = Intent(this, ChatEncomienda::class.java)
+        intent.putExtra("idEncomienda", encomienda.id)
+        intent.putExtra("destinatarioNombre", encomienda.destinatarioNombre)
+        startActivity(intent)
     }
 
     override fun onResume() {

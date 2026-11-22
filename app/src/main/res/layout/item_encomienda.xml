@@ -69,14 +69,14 @@
                 android:id="@+id/ivPdfEncomienda"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginStart="60dp"
+                android:layout_marginStart="20dp"
                 android:src="@drawable/icono_pdf" />
 
             <ImageView
                 android:id="@+id/ivAgendarEncomienda"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginStart="30dp"
+                android:layout_marginStart="20dp"
                 android:src="@drawable/icono_agendar"
                 android:tint="@color/color_primario" />
 
@@ -84,7 +84,7 @@
                 android:id="@+id/ivActualizarEncomienda"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginStart="30dp"
+                android:layout_marginStart="20dp"
                 android:src="@drawable/icono_actualizar"
                 android:tint="@color/color_primario" />
 
@@ -92,9 +92,16 @@
                 android:id="@+id/ivEliminarEncomienda"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginStart="30dp"
+                android:layout_marginStart="20dp"
                 android:src="@drawable/icono_eliminar"
                 android:tint="#FF2C2C" />
+            <ImageView
+                android:id="@+id/ivChatEncomienda"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="20dp"
+                android:src="@drawable/icono_chat"
+                android:tint="@color/color_primario" />
         </LinearLayout>
 
     </LinearLayout>

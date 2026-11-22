@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:padding="12dp"
+    tools:context=".Encomienda.ChatEncomienda">
+
+    <TextView
+        android:id="@+id/tvTituloChat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:textColor="@color/color_primario"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvEstadoChat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#757575"
+        android:textSize="14sp" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/swRepartidor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Modo repartidor (demo)" />
+
+    <LinearLayout
+        android:id="@+id/llControlesRepartidor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btnEnTransito"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/color_primario"
+            android:text="En tránsito" />
+
+        <Button
+            android:id="@+id/btnEntregada"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:backgroundTint="#2E7D32"
+            android:text="Entregada" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvChatCerrado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="#FFF3E0"
+        android:padding="10dp"
+        android:text="Chat cerrado: la encomienda fue entregada."
+        android:textColor="#E65100"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvSinMensajes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="Aún no hay mensajes"
+        android:textColor="#757575"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMensajes"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/etMensaje"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Escribe un mensaje"
+            android:inputType="textCapSentences|textMultiLine"
+            android:maxLines="3" />
+
+        <Button
+            android:id="@+id/btnEnviarMensaje"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="#FF6D00"
+            android:text="Enviar" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnVolverChat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:backgroundTint="@color/color_primario"
+        android:text="Volver" />
+
+</LinearLayout>

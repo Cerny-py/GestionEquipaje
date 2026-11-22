@@ -12,5 +12,6 @@ data class Encomienda(
     val fechaRegistro: String = "",
     val usuarioId: String = "",
     val estado: String = "registrada",
-    val fechaEntregaEstimada: String = ""
+    val fechaEntregaEstimada: String = "",
+    val calificacion: Int = 0
 )

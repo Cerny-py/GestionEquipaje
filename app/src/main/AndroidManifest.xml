@@ -66,6 +66,10 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".Encomienda.ChatEncomienda"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".DiagnosticoActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
