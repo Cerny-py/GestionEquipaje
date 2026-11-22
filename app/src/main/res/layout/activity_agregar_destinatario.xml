@@ -17,24 +17,25 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="580dp"
+            android:layout_width="381dp"
+            android:layout_height="671dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="90dp"
+            android:layout_marginTop="50dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="32dp"
             android:backgroundTint="@color/white"
             app:cardCornerRadius="28dp">
 
-            <ScrollView
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:maxHeight="620dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="24dp">
+                    android:padding="28dp">
 
                     <TextView
                         android:id="@+id/txtTituloLogIn"
@@ -42,7 +43,7 @@
                         android:layout_height="wrap_content"
                         android:text="Nuevo destinatario"
                         android:textColor="@color/color_primario"
-                        android:textSize="28sp"
+                        android:textSize="30sp"
                         android:textStyle="bold" />
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -68,7 +69,7 @@
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="16dp"
                         android:hint="Direccion (Av Webo 123)"
                         app:boxBackgroundMode="outline"
                         app:boxCornerRadiusBottomEnd="8dp"
@@ -88,7 +89,7 @@
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="16dp"
                         android:hint="Telefono (+56 9 6666 7777)"
                         app:boxBackgroundMode="outline"
                         app:boxCornerRadiusBottomEnd="8dp"
@@ -102,14 +103,14 @@
                             android:id="@+id/edTelefonoDestinatario"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:maxLength="18"
-                            android:inputType="phone" />
+                            android:inputType="phone"
+                            android:maxLength="18" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="16dp"
                         android:hint="Email (nombre@correo.cl)"
                         app:boxBackgroundMode="outline"
                         app:boxCornerRadiusBottomEnd="8dp"
@@ -130,7 +131,7 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="16dp"
                         android:hint="Región"
                         app:boxBackgroundMode="outline"
                         app:boxCornerRadiusBottomEnd="8dp"
@@ -151,7 +152,7 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="16dp"
                         android:hint="Comuna (elige primero la región)"
                         app:boxBackgroundMode="outline"
                         app:boxCornerRadiusBottomEnd="8dp"
@@ -180,29 +181,29 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="20dp"
                         android:gravity="center"
                         android:orientation="horizontal">
 
                         <Button
                             android:id="@+id/btnVolverMenuDestinatario"
-                            android:layout_width="140dp"
+                            android:layout_width="120dp"
                             android:layout_height="50dp"
-                            android:layout_margin="8dp"
+                            android:layout_margin="12dp"
                             android:backgroundTint="@color/color_primario"
                             android:text="Volver" />
 
                         <Button
                             android:id="@+id/btnGuardarDestinatario"
-                            android:layout_width="140dp"
+                            android:layout_width="130dp"
                             android:layout_height="50dp"
-                            android:layout_margin="8dp"
+                            android:layout_margin="12dp"
                             android:backgroundTint="#FF6D00"
                             android:text="Guardar" />
                     </LinearLayout>
 
                 </LinearLayout>
-            </ScrollView>
+            </androidx.core.widget.NestedScrollView>
         </androidx.cardview.widget.CardView>
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
