@@ -11,7 +11,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -103,6 +103,15 @@
                 android:src="@drawable/icono_chat"
                 android:tint="@color/color_primario" />
         </LinearLayout>
+        <Button
+            android:id="@+id/btnPagarEncomienda"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginTop="14dp"
+            android:backgroundTint="#FF6D00"
+            android:text="Pagar"
+            android:textSize="13sp"
+            app:cornerRadius="10dp" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -103,7 +103,9 @@ class VerEncomienda : AppCompatActivity() {
             onEliminar = { seleccionada -> confirmarEliminar(seleccionada) },
             onPdf = { seleccionada -> generarComprobante(seleccionada) },
             onChat = { seleccionada -> abrirChat(seleccionada) },
-            onAgendar = { seleccionada -> agendarEntrega(seleccionada) }
+            onAgendar = { seleccionada -> agendarEntrega(seleccionada) },
+            onPagar = { seleccionada -> iniciarPago(seleccionada) }
+
         )
         rvEncomiendas.adapter = adapter
 
@@ -247,6 +249,12 @@ class VerEncomienda : AppCompatActivity() {
             .setPositiveButton("Eliminar") { _, _ -> eliminarEncomienda(encomienda.id) }
             .setNegativeButton("Cancelar", null)
             .show()
+    }
+    private fun iniciarPago(encomienda: Encomienda) {
+        val intent = Intent(this, com.ortz.gestionequipaje.Pago.PagoWebpayActivity::class.java)
+        intent.putExtra("idEncomienda", encomienda.id)
+        intent.putExtra("monto", encomienda.tarifaCalculada)
+        startActivity(intent)
     }
     private fun escanearQr() {
         if (!Red.hayInternet(this)) {

@@ -69,10 +69,7 @@
             android:name=".Encomienda.ChatEncomienda"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".DiagnosticoActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+
         <service
             android:name=".data.ServicioMensajes"
             android:exported="false">
@@ -94,6 +91,11 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="canal_equipaje" />
+
+        <activity
+            android:name=".Pago.PagoWebpayActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

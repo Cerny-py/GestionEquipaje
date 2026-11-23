@@ -1,9 +1,11 @@
 package com.ortz.gestionequipaje.Encomienda
 
 import Model.Encomienda
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -15,7 +17,8 @@ class EncomiendaAdapter(
     private val onEliminar: (Encomienda) -> Unit,
     private val onAgendar: (Encomienda) -> Unit,
     private val onPdf: (Encomienda) -> Unit,
-    private val onChat: (Encomienda) -> Unit
+    private val onChat: (Encomienda) -> Unit,
+    private val onPagar: (Encomienda) -> Unit
 ) : RecyclerView.Adapter<EncomiendaAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -28,6 +31,7 @@ class EncomiendaAdapter(
         val ivActualizar: ImageView = view.findViewById(R.id.ivActualizarEncomienda)
         val ivEliminar: ImageView = view.findViewById(R.id.ivEliminarEncomienda)
         val tvEstado: TextView = view.findViewById(R.id.tvEstadoItem)
+        val btnPagar: Button = view.findViewById(R.id.btnPagarEncomienda)
 
     }
 
@@ -54,6 +58,18 @@ class EncomiendaAdapter(
         holder.tvEstado.text = item.estado.uppercase()
         holder.ivAgendar.setOnClickListener { onAgendar(item) }
         holder.ivChat.setOnClickListener { onChat(item) }
+
+        if (item.pagado) {
+            holder.btnPagar.text = "Pagada ✓"
+            holder.btnPagar.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#9E9E9E"))
+            holder.btnPagar.setOnClickListener {
+                android.widget.Toast.makeText(holder.itemView.context, "Esta encomienda ya está pagada", android.widget.Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            holder.btnPagar.text = "Pagar"
+            holder.btnPagar.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#FF6D00"))
+            holder.btnPagar.setOnClickListener { onPagar(item) }
+        }
     }
 
     override fun getItemCount() = lista.size
