@@ -5,6 +5,9 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Patterns
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
@@ -16,11 +19,11 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ortz.gestionequipaje.R
 import com.ortz.gestionequipaje.data.Eventos
+import com.ortz.gestionequipaje.data.Geocodificador
+import com.ortz.gestionequipaje.data.Geografia
 import com.ortz.gestionequipaje.data.Red
 import com.ortz.gestionequipaje.data.Sesion
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import com.ortz.gestionequipaje.data.Geografia
+import com.ortz.gestionequipaje.data.UbicacionVerificada
 
 class AgregarDestinatario : AppCompatActivity() {
 
@@ -28,6 +31,9 @@ class AgregarDestinatario : AppCompatActivity() {
     private var idEditar: String? = null
     private var editandoMascara = false
     private var guardando = false
+
+    private var ubicacion: UbicacionVerificada? = null
+    private var textoVerificado = ""
 
     private lateinit var edNombre: EditText
     private lateinit var edDireccion: EditText
@@ -49,15 +55,35 @@ class AgregarDestinatario : AppCompatActivity() {
         edTelefono = findViewById(R.id.edTelefonoDestinatario)
         edEmail = findViewById(R.id.edEmailDestinatario)
         edRegion = findViewById(R.id.edRegionDestinatario)
-
         edComuna = findViewById(R.id.edComunaDestinatario)
 
         edRegion.setAdapter(
             ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, Geografia.comunasPorRegion.keys.toList())
         )
+        edDireccion.isEnabled = false
+
         edRegion.setOnItemClickListener { _, _, _, _ ->
             edComuna.setText("", false)
+            edDireccion.setText("")
+            edDireccion.isEnabled = false
+            ubicacion = null
             cargarComunas(edRegion.text.toString())
+        }
+
+        edComuna.setOnItemClickListener { _, _, _, _ ->
+            edDireccion.setText("")
+            edDireccion.isEnabled = true
+            ubicacion = null
+            edDireccion.requestFocus()
+        }
+
+        edDireccion.setOnEditorActionListener { _, accion, _ ->
+            if (accion == EditorInfo.IME_ACTION_DONE) {
+                verificarDireccion { }
+                true
+            } else {
+                false
+            }
         }
 
         btnGuardar = findViewById(R.id.btnGuardarDestinatario)
@@ -97,12 +123,66 @@ class AgregarDestinatario : AppCompatActivity() {
             }
             edComuna.setText(comunaGuardada, false)
 
+            edDireccion.isEnabled = true
             btnGuardar.text = "Actualizar"
             tvTitulo.text = "Editar destinatario"
         }
 
         btnGuardar.setOnClickListener { guardarDestinatario() }
         btnVolver.setOnClickListener { finish() }
+    }
+
+    private fun verificarDireccion(alTerminar: (Boolean) -> Unit) {
+        val direccion = edDireccion.text.toString().trim()
+        val comuna = edComuna.text.toString().trim()
+        val clave = "$direccion|$comuna"
+
+        if (direccion.isEmpty() || comuna.isEmpty()) {
+            alTerminar(false)
+            return
+        }
+        if (ubicacion != null && clave == textoVerificado) {
+            alTerminar(true)
+            return
+        }
+        if (!Red.hayInternet(this)) {
+            Toast.makeText(this, "Sin conexión: no se pudo verificar la dirección", Toast.LENGTH_SHORT).show()
+            alTerminar(false)
+            return
+        }
+
+        mostrarCarga(true)
+        Thread {
+            var resultado: UbicacionVerificada? = null
+            var falloDeRed = false
+            try {
+                resultado = Geocodificador.verificar(direccion, comuna)
+            } catch (e: Exception) {
+                falloDeRed = true
+                FirebaseCrashlytics.getInstance().recordException(e)
+            }
+
+            runOnUiThread {
+                if (isFinishing) return@runOnUiThread
+                mostrarCarga(false)
+
+                if (resultado != null) {
+                    ubicacion = resultado
+                    textoVerificado = clave
+                    edDireccion.error = null
+                    Toast.makeText(this, "Dirección verificada", Toast.LENGTH_SHORT).show()
+                    alTerminar(true)
+                } else {
+                    ubicacion = null
+                    edDireccion.error = if (falloDeRed) {
+                        "No se pudo verificar la dirección, intenta de nuevo"
+                    } else {
+                        "No encontramos esa dirección en $comuna, Chile. Revisa la calle y el número"
+                    }
+                    alTerminar(false)
+                }
+            }
+        }.start()
     }
 
     private fun formatearTelefono(numeros: String): String {
@@ -149,6 +229,16 @@ class AgregarDestinatario : AppCompatActivity() {
             edNombre.requestFocus()
             return
         }
+        if (edRegion.text.toString().isEmpty()) {
+            edRegion.error = "Selecciona la región"
+            edRegion.requestFocus()
+            return
+        }
+        if (comuna.isEmpty()) {
+            edComuna.error = "Selecciona la comuna"
+            edComuna.requestFocus()
+            return
+        }
         if (direccion.isEmpty()) {
             edDireccion.error = "Ingresa la dirección"
             edDireccion.requestFocus()
@@ -164,16 +254,6 @@ class AgregarDestinatario : AppCompatActivity() {
             edEmail.requestFocus()
             return
         }
-        if (edRegion.text.toString().isEmpty()) {
-            edRegion.error = "Selecciona la región"
-            edRegion.requestFocus()
-            return
-        }
-        if (comuna.isEmpty()) {
-            edComuna.error = "Ingresa la comuna"
-            edComuna.requestFocus()
-            return
-        }
 
         val usuarioId = Sesion.uid()
         if (usuarioId.isEmpty()) {
@@ -185,12 +265,37 @@ class AgregarDestinatario : AppCompatActivity() {
             return
         }
 
-        val destinatario = hashMapOf(
+        verificarDireccion { valida ->
+            val lugar = ubicacion
+            if (valida && lugar != null) {
+                guardarVerificado(
+                    nombre, direccion, telefono, email,
+                    comuna, edRegion.text.toString(), usuarioId, lugar
+                )
+            }
+        }
+    }
+
+    private fun guardarVerificado(
+        nombre: String,
+        direccion: String,
+        telefono: String,
+        email: String,
+        comuna: String,
+        region: String,
+        usuarioId: String,
+        lugar: UbicacionVerificada
+    ) {
+        val destinatario = hashMapOf<String, Any>(
             "nombre" to nombre,
             "direccion" to direccion,
             "telefono" to telefono,
             "email" to email,
+            "region" to region,
             "comuna" to comuna,
+            "latitud" to lugar.latitud,
+            "longitud" to lugar.longitud,
+            "direccionVerificada" to true,
             "usuarioId" to usuarioId
         )
 
