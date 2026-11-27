@@ -54,4 +54,26 @@ object Distancia {
             conexion.disconnect()
         }
     }
+    fun existeDireccionEnChile(direccion: String, comuna: String): Boolean {
+        val consulta = URLEncoder.encode("$direccion, $comuna, Chile", "UTF-8")
+        val url = URL("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=cl&q=$consulta")
+        val conexion = url.openConnection() as HttpURLConnection
+
+        try {
+            conexion.requestMethod = "GET"
+            conexion.connectTimeout = 8000
+            conexion.readTimeout = 8000
+            conexion.setRequestProperty("User-Agent", "GestionEquipajeApp/1.0 (contacto: bastianegg117@gmail.com)")
+
+            if (conexion.responseCode != 200) return false
+
+            val respuesta = conexion.inputStream.bufferedReader().use { it.readText() }
+            val resultados = JSONArray(respuesta)
+            return resultados.length() > 0
+        } catch (e: Exception) {
+            return false
+        } finally {
+            conexion.disconnect()
+        }
+    }
 }

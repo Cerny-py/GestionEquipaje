@@ -15,8 +15,12 @@ data class UbicacionVerificada(
 object Geocodificador {
 
     fun verificar(direccion: String, comuna: String): UbicacionVerificada? {
-        val consulta = URLEncoder.encode("$direccion, $comuna, Chile", "UTF-8")
-        val url = URL("https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&countrycodes=cl&q=$consulta")
+        val calle = URLEncoder.encode(direccion, "UTF-8")
+        val ciudad = URLEncoder.encode(comuna, "UTF-8")
+        val url = URL(
+            "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&countrycodes=cl" +
+                    "&street=$calle&city=$ciudad&country=Chile"
+        )
         val conexion = url.openConnection() as HttpURLConnection
 
         try {
