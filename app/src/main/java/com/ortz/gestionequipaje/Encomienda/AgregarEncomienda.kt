@@ -339,8 +339,17 @@ class AgregarEncomienda : AppCompatActivity() {
                     Eventos.registrar(this, "registro_creado", "encomienda")
                     ofrecerAgendar(fechaEntrega, destinatario.nombre, referencia.id)
                 }
-    }
+                .addOnFailureListener { e -> errorAlGuardar(e, "registrar") }
+        } else {
+            db.collection("encomiendas").document(id).set(encomienda, SetOptions.merge())
+                .addOnSuccessListener {
+                    Eventos.registrar(this, "registro_actualizado", "encomienda")
+                    Toast.makeText(this, "Encomienda actualizada", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                .addOnFailureListener { e -> errorAlGuardar(e, "actualizar") }
         }
+    }
 
     private fun errorAlGuardar(e: Exception, accion: String) {
         guardando = false

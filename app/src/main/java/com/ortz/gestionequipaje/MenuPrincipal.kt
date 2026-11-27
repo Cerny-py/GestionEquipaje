@@ -21,6 +21,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.google.firebase.messaging.FirebaseMessaging
 import com.ortz.gestionequipaje.data.Notificaciones
+import com.ortz.gestionequipaje.Admin.AdminRepartidores
+import com.ortz.gestionequipaje.Admin.EntregasActivity
+import com.ortz.gestionequipaje.data.Rol
 
 class MenuPrincipal : AppCompatActivity() {
     private val pedirPermiso = registerForActivityResult(
@@ -71,6 +74,12 @@ class MenuPrincipal : AppCompatActivity() {
                 .setNegativeButton("Cancelar", null)
                 .show()
         }
+        findViewById<CardView>(R.id.cvRepartidores).setOnClickListener {
+            startActivity(Intent(this, AdminRepartidores::class.java))
+        }
+        findViewById<CardView>(R.id.cvEntregas).setOnClickListener {
+            startActivity(Intent(this, EntregasActivity::class.java))
+        }
         Notificaciones.crearCanal(this)
 
         if (Build.VERSION.SDK_INT >= 33 &&
@@ -85,5 +94,23 @@ class MenuPrincipal : AppCompatActivity() {
         }
 
 
+    }
+    override fun onResume() {
+        super.onResume()
+        Rol.detectar { rol ->
+            if (isFinishing) return@detectar
+
+            val esAdmin = rol == Rol.ADMIN
+            val esRepartidor = rol == Rol.REPARTIDOR
+            val visibilidadCliente = if (esRepartidor) View.GONE else View.VISIBLE
+
+            findViewById<CardView>(R.id.cvTipoEquipaje).visibility = visibilidadCliente
+            findViewById<CardView>(R.id.cvDestinatario).visibility = visibilidadCliente
+            findViewById<CardView>(R.id.cvEncomienda).visibility = visibilidadCliente
+            findViewById<CardView>(R.id.cvRepartidores).visibility =
+                if (esAdmin) View.VISIBLE else View.GONE
+            findViewById<CardView>(R.id.cvEntregas).visibility =
+                if (esAdmin || esRepartidor) View.VISIBLE else View.GONE
+        }
     }
 }

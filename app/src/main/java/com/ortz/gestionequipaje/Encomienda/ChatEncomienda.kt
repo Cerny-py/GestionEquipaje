@@ -6,12 +6,10 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SwitchCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -21,6 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.ortz.gestionequipaje.R
 import com.ortz.gestionequipaje.data.Red
+import com.ortz.gestionequipaje.data.Rol
 import com.ortz.gestionequipaje.data.Sesion
 
 class ChatEncomienda : AppCompatActivity() {
@@ -29,7 +28,7 @@ class ChatEncomienda : AppCompatActivity() {
     private val mensajes = mutableListOf<Mensaje>()
 
     private var idEncomienda = ""
-    private var modoRepartidor = false
+    private var emisor = ""
     private var enviando = false
     private var entregada = false
     private var calificacionActual = 0
@@ -42,7 +41,6 @@ class ChatEncomienda : AppCompatActivity() {
     private lateinit var tvEstado: TextView
     private lateinit var tvSinMensajes: TextView
     private lateinit var tvChatCerrado: TextView
-    private lateinit var llControles: LinearLayout
     private lateinit var etMensaje: EditText
     private lateinit var btnEnviar: Button
 
@@ -58,14 +56,10 @@ class ChatEncomienda : AppCompatActivity() {
         }
 
         val tvTitulo = findViewById<TextView>(R.id.tvTituloChat)
-        val swRepartidor = findViewById<SwitchCompat>(R.id.swRepartidor)
-        val btnEnTransito = findViewById<Button>(R.id.btnEnTransito)
-        val btnEntregada = findViewById<Button>(R.id.btnEntregada)
         val btnVolver = findViewById<Button>(R.id.btnVolverChat)
         tvEstado = findViewById(R.id.tvEstadoChat)
         tvSinMensajes = findViewById(R.id.tvSinMensajes)
         tvChatCerrado = findViewById(R.id.tvChatCerrado)
-        llControles = findViewById(R.id.llControlesRepartidor)
         rvMensajes = findViewById(R.id.rvMensajes)
         etMensaje = findViewById(R.id.etMensaje)
         btnEnviar = findViewById(R.id.btnEnviarMensaje)
@@ -76,19 +70,13 @@ class ChatEncomienda : AppCompatActivity() {
         manager.stackFromEnd = true
         rvMensajes.layoutManager = manager
         adapter = MensajeAdapter(mensajes)
+        adapter.miUid = Sesion.uid()
         rvMensajes.adapter = adapter
 
-        swRepartidor.setOnCheckedChangeListener { _, activado ->
-            modoRepartidor = activado
-            adapter.miRol = if (activado) "repartidor" else "cliente"
-            adapter.notifyDataSetChanged()
-            llControles.visibility = if (activado) View.VISIBLE else View.GONE
-            revisarCalificacion()
-        }
+        etMensaje.isEnabled = false
+        btnEnviar.isEnabled = false
 
         btnEnviar.setOnClickListener { enviarMensaje() }
-        btnEnTransito.setOnClickListener { cambiarEstado("en_transito") }
-        btnEntregada.setOnClickListener { cambiarEstado("entregado") }
         btnVolver.setOnClickListener { finish() }
     }
 
@@ -144,20 +132,36 @@ class ChatEncomienda : AppCompatActivity() {
                 if (doc == null || !doc.exists()) return@addSnapshotListener
 
                 val estado = doc.getString("estado") ?: "registrada"
+                val duenoId = doc.getString("usuarioId") ?: ""
+                val repartidorEmail = doc.getString("repartidorEmail") ?: ""
+                val repartidorNombre = doc.getString("repartidorNombre") ?: ""
                 calificacionActual = (doc.getLong("calificacion") ?: 0L).toInt()
                 entregada = estado.equals("entregado", ignoreCase = true)
 
-                tvEstado.text = "Estado: ${estado.uppercase()}"
-                tvChatCerrado.visibility = if (entregada) View.VISIBLE else View.GONE
-                etMensaje.isEnabled = !entregada
-                btnEnviar.isEnabled = !entregada && !enviando
+                emisor = when {
+                    duenoId == Sesion.uid() -> "cliente"
+                    Rol.actual == Rol.REPARTIDOR && repartidorEmail == Rol.email() -> "repartidor"
+                    Rol.actual == Rol.ADMIN -> "admin"
+                    else -> ""
+                }
 
-                revisarCalificacion()
+                val quien = if (repartidorNombre.isEmpty()) "sin asignar" else repartidorNombre
+                tvEstado.text = "Estado: ${estado.uppercase()}  |  Repartidor: $quien"
+                tvChatCerrado.visibility = if (entregada) View.VISIBLE else View.GONE
+
+                val puedeEscribir = emisor.isNotEmpty() && !entregada
+                etMensaje.isEnabled = puedeEscribir
+                btnEnviar.isEnabled = puedeEscribir && !enviando
+
+                if (entregada && calificacionActual == 0 && emisor == "cliente" && !dialogoMostrado) {
+                    dialogoMostrado = true
+                    mostrarCalificacion()
+                }
             }
     }
 
     private fun enviarMensaje() {
-        if (enviando || entregada) return
+        if (enviando || entregada || emisor.isEmpty()) return
 
         val texto = etMensaje.text.toString().trim()
         if (texto.isEmpty()) {
@@ -184,7 +188,7 @@ class ChatEncomienda : AppCompatActivity() {
 
         val mensaje = hashMapOf<String, Any>(
             "texto" to texto,
-            "emisor" to (if (modoRepartidor) "repartidor" else "cliente"),
+            "emisor" to emisor,
             "usuarioId" to usuarioId,
             "fecha" to FieldValue.serverTimestamp()
         )
@@ -204,30 +208,7 @@ class ChatEncomienda : AppCompatActivity() {
 
     private fun terminarEnvio() {
         enviando = false
-        btnEnviar.isEnabled = !entregada
-    }
-
-    private fun cambiarEstado(nuevoEstado: String) {
-        if (!Red.hayInternet(this)) {
-            Toast.makeText(this, "Sin conexión a internet", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        db.collection("encomiendas").document(idEncomienda).update("estado", nuevoEstado)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Estado actualizado", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { e ->
-                FirebaseCrashlytics.getInstance().recordException(e)
-                Toast.makeText(this, "No se pudo cambiar el estado", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun revisarCalificacion() {
-        if (entregada && calificacionActual == 0 && !modoRepartidor && !dialogoMostrado) {
-            dialogoMostrado = true
-            mostrarCalificacion()
-        }
+        btnEnviar.isEnabled = emisor.isNotEmpty() && !entregada
     }
 
     private fun mostrarCalificacion() {

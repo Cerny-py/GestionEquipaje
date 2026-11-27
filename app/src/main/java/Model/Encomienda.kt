@@ -14,5 +14,7 @@ data class Encomienda(
     val estado: String = "registrada",
     val fechaEntregaEstimada: String = "",
     val calificacion: Int = 0,
-    val pagado: Boolean = false
+    val pagado: Boolean = false,
+    val repartidorEmail: String = "",
+    val repartidorNombre: String = ""
 )

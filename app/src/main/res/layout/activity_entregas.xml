@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".Admin.EntregasActivity">
+
+    <TextView
+        android:id="@+id/tvTituloEntregas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:textColor="@color/color_primario"
+        android:textSize="26sp"
+        android:textStyle="bold" />
+
+    <ProgressBar
+        android:id="@+id/progresoEntregas"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvVacioEntregas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="No hay encomiendas para mostrar"
+        android:textColor="#757575"
+        android:visibility="gone" />
+
+    <ListView
+        android:id="@+id/lvEntregas"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Toca una encomienda para ver las opciones"
+        android:textColor="#757575"
+        android:textSize="12sp" />
+
+    <Button
+        android:id="@+id/btnVolverEntregas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/color_primario"
+        android:text="Volver" />
+</LinearLayout>

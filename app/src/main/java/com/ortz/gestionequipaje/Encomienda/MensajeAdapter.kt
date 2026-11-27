@@ -14,7 +14,7 @@ class MensajeAdapter(
     private val lista: List<Mensaje>
 ) : RecyclerView.Adapter<MensajeAdapter.ViewHolder>() {
 
-    var miRol = "cliente"
+    var miUid = ""
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvTexto: TextView = view.findViewById(R.id.tvTextoMensaje)
@@ -22,7 +22,7 @@ class MensajeAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (lista[position].emisor == miRol) TIPO_ENVIADO else TIPO_RECIBIDO
+        return if (lista[position].usuarioId == miUid) TIPO_ENVIADO else TIPO_RECIBIDO
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -39,12 +39,18 @@ class MensajeAdapter(
         val mensaje = lista[position]
         holder.tvTexto.text = mensaje.texto
 
+        val rol = when (mensaje.emisor) {
+            "repartidor" -> "Repartidor"
+            "admin" -> "Administración"
+            else -> "Cliente"
+        }
         val fecha = mensaje.fecha?.toDate()
-        holder.tvHora.text = if (fecha != null) {
+        val hora = if (fecha != null) {
             SimpleDateFormat("HH:mm", Locale.getDefault()).format(fecha)
         } else {
             ""
         }
+        holder.tvHora.text = "$rol  $hora"
     }
 
     override fun getItemCount() = lista.size

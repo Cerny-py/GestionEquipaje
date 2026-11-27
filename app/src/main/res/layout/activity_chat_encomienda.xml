@@ -24,39 +24,6 @@
         android:textColor="#757575"
         android:textSize="14sp" />
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/swRepartidor"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Modo repartidor (demo)" />
-
-    <LinearLayout
-        android:id="@+id/llControlesRepartidor"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone">
-
-        <Button
-            android:id="@+id/btnEnTransito"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/color_primario"
-            android:text="En tránsito" />
-
-        <Button
-            android:id="@+id/btnEntregada"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1"
-            android:backgroundTint="#2E7D32"
-            android:text="Entregada" />
-    </LinearLayout>
-
     <TextView
         android:id="@+id/tvChatCerrado"
         android:layout_width="match_parent"

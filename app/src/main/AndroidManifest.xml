@@ -30,6 +30,13 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".Admin.AdminRepartidores"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".Admin.EntregasActivity"
+            android:exported="false" />
+        <activity
             android:name=".Equipaje.MenuEquipaje"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
